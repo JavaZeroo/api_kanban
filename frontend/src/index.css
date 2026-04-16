@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------- HarmonyOS Sans SC ------------------------------------------- */
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: local('HarmonyOS Sans SC'), local('HarmonyOS Sans'),
+    url('/fonts/HarmonyOS_Sans_SC_Regular.woff2') format('woff2'),
+    url('/fonts/HarmonyOS_Sans_SC_Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: local('HarmonyOS Sans SC Medium'), local('HarmonyOS Sans Medium'),
+    url('/fonts/HarmonyOS_Sans_SC_Medium.woff2') format('woff2'),
+    url('/fonts/HarmonyOS_Sans_SC_Medium.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: local('HarmonyOS Sans SC Bold'), local('HarmonyOS Sans Bold'),
+    url('/fonts/HarmonyOS_Sans_SC_Bold.woff2') format('woff2'),
+    url('/fonts/HarmonyOS_Sans_SC_Bold.ttf') format('truetype');
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'HarmonyOS Sans SC', 'HarmonyOS Sans', 'PingFang SC',
+    'Microsoft YaHei', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  color: #333;
+  background-color: #FAFAFA;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'ss01', 'cv11';
+  letter-spacing: 0.005em;
+}
+
+/* 极轻网格 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 50% at 50% 0%, #000 30%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 50% at 50% 0%, #000 30%, transparent 85%);
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* 自定义滚动条 */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+@layer components {
+  /* ---- 卡片 ---------------------------------------------------------- */
+  .glass-card {
+    @apply relative rounded-[10px] border border-line-300 bg-white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .hud-corners::before,
+  .hud-corners::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    border: 1px solid rgba(199, 0, 11, 0.25);
+  }
+  .hud-corners::before {
+    top: -1px;
+    left: -1px;
+    border-right: 0;
+    border-bottom: 0;
+    border-top-left-radius: 10px;
+  }
+  .hud-corners::after {
+    bottom: -1px;
+    right: -1px;
+    border-left: 0;
+    border-top: 0;
+    border-bottom-right-radius: 10px;
+  }
+
+  .glass-card-hover {
+    @apply transition-[transform,border-color,box-shadow] duration-200;
+  }
+  .glass-card-hover:hover {
+    @apply border-line-400;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  }
+
+  /* ---- 章节标题 ------------------------------------------------------- */
+  .hud-label {
+    font-family: 'JetBrains Mono', 'HarmonyOS Sans Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #8C8C8C;
+    font-weight: 500;
+  }
+
+  .section-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    color: #A6A6A6;
+    padding: 2px 5px 1px;
+    border: 1px solid #E5E5E5;
+    border-radius: 3px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .section-title {
+    @apply flex items-center gap-2 text-[13px] font-medium tracking-[0.01em] text-line-900;
+  }
+
+  .section-subtitle {
+    @apply text-[11px] font-normal text-line-600;
+  }
+
+  /* ---- Chip ---------------------------------------------------------- */
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-[3px] px-1.5 py-0.5 text-[11px] font-medium leading-none;
+  }
+
+  /* ---- 按钮 ---------------------------------------------------------- */
+  .btn-ghost {
+    @apply inline-flex items-center gap-1.5 rounded-md border border-line-300 bg-white px-2.5 py-1 text-[11px] text-line-800 transition hover:border-line-400 hover:bg-line-50;
+  }
+
+  .divider-v {
+    @apply mx-2 h-4 w-px bg-line-300;
+  }
+
+  /* 大号强调数字 */
+  .num-display {
+    font-family: 'JetBrains Mono', 'HarmonyOS Sans Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum', 'zero';
+    letter-spacing: -0.01em;
+  }
+
+  /* 面板 id 角标 */
+  .panel-id {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.18em;
+    color: #D9D9D9;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
