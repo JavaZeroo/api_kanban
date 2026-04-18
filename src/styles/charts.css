@@ -1,0 +1,74 @@
+/* ── Pixel Matrix ── */
+.pxmat-legend { display: flex; gap: 14px; font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-3); align-items: center; }
+.pxmat-legend .swatch { width: 10px; height: 10px; display: inline-block; border-radius: 1px; margin-right: 5px; vertical-align: -1px; }
+.pxmat-quad {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: 0.5px; background: var(--panel); cursor: pointer; position: relative; flex-shrink: 0;
+}
+.pxmat-quad:hover { outline: 1.5px solid var(--fg); outline-offset: 1px; z-index: 2; }
+.pxmat-quad span { background: var(--s-untested); }
+.pxmat-quad span.aligned     { background: var(--s-aligned); }
+.pxmat-quad span.reviewed    { background: var(--s-reviewed); }
+.pxmat-quad span.fixing      { background: var(--s-fixing); }
+.pxmat-quad span.unsupported { background: var(--s-unsupported); }
+
+/* ── Hi-impact table ── */
+.htab { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 11.5px; }
+.htab th {
+  text-align: left; font-weight: 500; color: var(--fg-3); padding: 6px 8px;
+  border-bottom: 1px solid var(--line); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.08em; background: var(--bg-1); position: sticky; top: 0;
+}
+.htab th.num, .htab td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.htab td { padding: 5px 8px; border-bottom: 1px solid var(--line-soft); color: var(--fg-2); vertical-align: middle; }
+.htab tr:hover td { background: var(--bg-1); color: var(--fg); cursor: pointer; }
+.htab td.api { color: var(--fg); white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Repo coverage ── */
+.repo-list { display: flex; flex-direction: column; }
+.repo-row {
+  display: grid; grid-template-columns: 1fr 50px 1fr 50px;
+  align-items: center; gap: 10px; padding: 9px 0;
+  border-bottom: 1px dashed var(--line-soft);
+  font-family: var(--font-mono); font-size: 11.5px;
+}
+.repo-row:last-child { border-bottom: 0; }
+.repo-name { color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.repo-name .org   { color: var(--fg-3); }
+.repo-name .stars { color: var(--fg-4); font-size: 10px; margin-left: 4px; }
+.repo-bar { position: relative; height: 14px; background: var(--bg-1); border: 1px solid var(--line-soft); overflow: hidden; }
+.repo-bar .fill   { position: absolute; inset: 0; height: 100%; display: flex; }
+.repo-bar .fill span { display: block; height: 100%; }
+.repo-bar .label  { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: var(--font-mono); color: var(--fg); mix-blend-mode: multiply; font-variant-numeric: tabular-nums; font-weight: 600; }
+.repo-row .count  { color: var(--fg-3); text-align: right; }
+.repo-row .pct    { color: var(--fg); text-align: right; font-weight: 500; }
+
+/* ── Diff feed ── */
+.diff {
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.6;
+  background: var(--bg-1); border: 1px solid var(--line-soft); border-radius: 2px;
+  padding: 8px 0; max-height: 240px; overflow: auto;
+}
+.diff-row { padding: 0 10px; display: grid; grid-template-columns: 12px 46px 1fr auto; gap: 8px; align-items: baseline; color: var(--fg-2); }
+.diff-row:hover { background: var(--panel); }
+.diff-row .sign  { font-weight: 700; width: 12px; text-align: center; }
+.diff-row.add .sign { color: var(--s-aligned); }
+.diff-row.del .sign { color: var(--s-fixing); }
+.diff-row.mod .sign { color: var(--s-reviewed); }
+.diff-row .t   { color: var(--fg-4); font-size: 10.5px; }
+.diff-row .api { color: var(--fg); }
+.diff-row .tag { padding: 0 5px; border-radius: 2px; font-size: 9.5px; color: var(--fg-3); background: var(--bg-2); margin: 0 4px; }
+.diff-row .arrow { color: var(--fg-4); }
+.diff-row.add .new { color: var(--s-aligned); }
+.diff-row.mod .new { color: var(--s-reviewed); }
+.diff-row.del .new { color: var(--s-fixing); }
+.diff-row .usr { color: var(--fg-3); font-size: 10px; }
+
+/* ── Module bars ── */
+.module-list { display: flex; flex-direction: column; gap: 6px; }
+.module-row  { display: grid; grid-template-columns: 130px 1fr 42px 52px; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 11px; }
+.module-row .name { color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.module-row .name b { color: var(--fg); font-weight: 500; }
+.stack span { display: block; height: 100%; }
+.module-row .count { color: var(--fg-4); text-align: right; font-size: 10px; }
+.module-row .rate  { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }

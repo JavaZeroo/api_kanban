@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(gunzip)",
+      "Bash(python3 -c ' *)",
+      "Bash(python -c ' *)",
+      "Bash(tar -tf design_output.json)",
+      "Bash(tar -xf design_output.json)",
+      "Bash(node *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(git rm *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(curl -s http://localhost:5177/)",
+      "Bash(curl -s http://localhost:5177/src/main.jsx)",
+      "Bash(npx playwright:*)"
+    ]
+  }
+}
