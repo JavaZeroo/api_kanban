@@ -3,12 +3,23 @@ import { APIS, REPOS, TREND_30D, DIMENSIONS, overallAlignment, weightedAlignment
 import { HeroGauge } from '../charts';
 
 function buildStats(list) {
-  const totalDims     = list.length * DIMENSIONS.length || 1;
-  const alignedCount  = list.reduce((s, a) => s + DIMENSIONS.filter(d => a.dims[d.key] === 'aligned').length, 0);
-  const reviewedCount = list.reduce((s, a) => s + DIMENSIONS.filter(d => a.dims[d.key] === 'reviewed').length, 0);
-  const fixingCount   = list.reduce((s, a) => s + DIMENSIONS.filter(d => a.dims[d.key] === 'fixing').length, 0);
-  const untestedCount = list.reduce((s, a) => s + DIMENSIONS.filter(d => a.dims[d.key] === 'untested').length, 0);
-  return { total: totalDims, aligned: alignedCount, partial: reviewedCount, fixing: fixingCount, untested: untestedCount };
+  const stats = { total: list.length, aligned: 0, partial: 0, fixing: 0, untested: 0 };
+
+  list.forEach(api => {
+    const status = api.alignment || (
+      DIMENSIONS.every(d => api.dims[d.key] === 'untested') ? 'untested' :
+      DIMENSIONS.some(d => api.dims[d.key] === 'fixing' || api.dims[d.key] === 'unsupported') ? 'fixing' :
+      DIMENSIONS.some(d => api.dims[d.key] === 'reviewed') ? 'reviewed' :
+      'aligned'
+    );
+
+    if (status === 'aligned') stats.aligned++;
+    else if (status === 'reviewed') stats.partial++;
+    else if (status === 'untested') stats.untested++;
+    else stats.fixing++;
+  });
+
+  return stats;
 }
 
 
@@ -57,28 +68,6 @@ export default function HeroSection({ filtered = [] }) {
               <b style={{ color: change30d >= 0 ? 'var(--s-aligned)' : 'var(--s-fixing)' }}>{change30d >= 0 ? '+' : ''}{change30d.toFixed(1)}pp</b>
             </div>
           </div>
-          <div className="hero-action-grid">
-            <div className="hero-action-card">
-              <span>所有 API 总数</span>
-              <b>{APIS.length.toLocaleString()}</b>
-              <em>全量</em>
-            </div>
-            <div className="hero-action-card">
-              <span>L0+L1 API 总数</span>
-              <b>{l01.length.toLocaleString()}</b>
-              <em>{APIS.length ? (l01.length / APIS.length * 100).toFixed(1) : '0.0'}% / 全量</em>
-            </div>
-            <div className="hero-action-card">
-              <span>L0+L1 已覆盖 API</span>
-              <b>{l01Covered.length.toLocaleString()}</b>
-              <em>{l01.length ? (l01Covered.length / l01.length * 100).toFixed(1) : '0.0'}% / L0+L1</em>
-            </div>
-            <div className="hero-action-card">
-              <span>L0+L1 一致性对齐 API</span>
-              <b>{l01Aligned.length.toLocaleString()}</b>
-              <em>{l01.length ? (l01Aligned.length / l01.length * 100).toFixed(1) : '0.0'}% / L0+L1</em>
-            </div>
-          </div>
         </div>
         <div className="hero-side">
           <div className="hero-gauge-row">
@@ -87,6 +76,28 @@ export default function HeroSection({ filtered = [] }) {
             <HeroGauge stats={allStats} label="全量" />
           </div>
 
+        </div>
+        <div className="hero-action-grid">
+          <div className="hero-action-card">
+            <span>所有 API 总数</span>
+            <b>{APIS.length.toLocaleString()}</b>
+            <em>全量</em>
+          </div>
+          <div className="hero-action-card">
+            <span>L0+L1 API 总数</span>
+            <b>{l01.length.toLocaleString()}</b>
+            <em>{APIS.length ? (l01.length / APIS.length * 100).toFixed(1) : '0.0'}% / 全量</em>
+          </div>
+          <div className="hero-action-card">
+            <span>L0+L1 已覆盖 API</span>
+            <b>{l01Covered.length.toLocaleString()}</b>
+            <em>{l01.length ? (l01Covered.length / l01.length * 100).toFixed(1) : '0.0'}% / L0+L1</em>
+          </div>
+          <div className="hero-action-card">
+            <span>L0+L1 一致性对齐 API</span>
+            <b>{l01Aligned.length.toLocaleString()}</b>
+            <em>{l01.length ? (l01Aligned.length / l01.length * 100).toFixed(1) : '0.0'}% / L0+L1</em>
+          </div>
         </div>
       </div>
     </section>

@@ -1,8 +1,9 @@
 export default function HeroGauge({ stats, label }) {
-  const size = 100, cx = size / 2, cy = size / 2, r = 38, tk = 7;
+  const size = 140, cx = size / 2, cy = size / 2, r = 53, tk = 12;
   const startDeg = 210, endDeg = 510, totalDeg = endDeg - startDeg;
   const { total, aligned, partial, fixing, untested } = stats;
-  const rate = (aligned + partial) / total;
+  const ready = aligned + partial;
+  const rate = total ? ready / total : 0;
 
   const arcPath = (s, e, rr) => {
     const sa = (s - 90) * Math.PI / 180;
@@ -12,10 +13,10 @@ export default function HeroGauge({ stats, label }) {
   };
 
   const segments = [
-    { val: aligned, color: 'var(--s-aligned)' },
-    { val: partial, color: 'var(--s-reviewed)' },
-    { val: fixing, color: 'var(--s-fixing)' },
-    { val: untested, color: 'var(--s-untested)' },
+    { key: 'aligned', name: '对齐', val: aligned, color: 'var(--s-aligned)' },
+    { key: 'reviewed', name: '复核', val: partial, color: 'var(--s-reviewed)' },
+    { key: 'fixing', name: '待修', val: fixing, color: 'var(--s-fixing)' },
+    { key: 'untested', name: '未测', val: untested, color: 'var(--s-untested)' },
   ];
 
   let curDeg = startDeg;
@@ -28,23 +29,48 @@ export default function HeroGauge({ stats, label }) {
   });
 
   return (
-    <div className="hero-gauge-col">
-      <svg viewBox={`0 0 ${size} ${size}`} style={{ width: '110px', height: 'auto' }}>
-        <path d={arcPath(startDeg, endDeg, r)} fill="none" stroke="var(--bg-2)" strokeWidth={tk} strokeLinecap="butt" />
+    <article className="hero-gauge-col" aria-label={`${label} 一致性达成 ${(rate * 100).toFixed(1)}%`}>
+      <div className="hero-gauge-head">
+        <div>
+          <span>API 指标</span>
+          <b>{label}</b>
+        </div>
+        <strong>{ready.toLocaleString()}<span>/{total.toLocaleString()}</span></strong>
+      </div>
+
+      <svg className="hero-gauge-svg" viewBox={`0 0 ${size} ${size}`}>
+        <path d={arcPath(startDeg, endDeg, r)} fill="none" stroke="var(--bg-2)" strokeWidth={tk} strokeLinecap="round" />
         {segPaths.filter(Boolean).map(s => (
-          <path key={s.key} d={s.path} fill="none" stroke={s.color} strokeWidth={tk} strokeLinecap="butt" />
+          <path key={s.key} d={s.path} fill="none" stroke={s.color} strokeWidth={tk} strokeLinecap="round" />
         ))}
-        <text x={cx} y={cy + 2} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="16" fontWeight="500" fill="var(--fg)" style={{ letterSpacing: '-0.02em' }}>
+        <text className="hero-gauge-rate" x={cx} y={cy + 2} textAnchor="middle">
           {(rate * 100).toFixed(1)}%
         </text>
+        <text className="hero-gauge-caption" x={cx} y={cy + 22} textAnchor="middle">达成率</text>
       </svg>
-      <div className="ring-label">{label}</div>
-      <div className="hero-ring-detail" title={`对齐 ${aligned} · 复核 ${partial} · 待修 ${fixing} · 未测 ${untested} · 合计 ${total}`}>
-        <span><i className="d" style={{ background: 'var(--s-aligned)' }} />{aligned}</span>
-        <span><i className="d" style={{ background: 'var(--s-reviewed)' }} />{partial}</span>
-        <span><i className="d" style={{ background: 'var(--s-fixing)' }} />{fixing}</span>
-        <span><i className="d" style={{ background: 'var(--s-untested)', border: '1px solid var(--line)' }} />{untested}</span>
+
+      <div className="hero-ring-stack" aria-hidden="true">
+        {segments.map(seg => (
+          <span
+            key={seg.key}
+            style={{
+              width: `${total ? (seg.val / total) * 100 : 0}%`,
+              background: seg.color,
+              border: seg.key === 'untested' ? '1px solid var(--line)' : undefined,
+            }}
+          />
+        ))}
       </div>
-    </div>
+
+      <div className="hero-ring-detail" title={`对齐 ${aligned} API · 复核 ${partial} API · 待修 ${fixing} API · 未测 ${untested} API · 合计 ${total} API`}>
+        {segments.map(seg => (
+          <span key={seg.key}>
+            <i className="d" style={{ background: seg.color, border: seg.key === 'untested' ? '1px solid var(--line)' : undefined }} />
+            <em>{seg.name}</em>
+            <b>{seg.val.toLocaleString()}</b>
+          </span>
+        ))}
+      </div>
+    </article>
   );
 }

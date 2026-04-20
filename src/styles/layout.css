@@ -82,31 +82,63 @@
     repeating-linear-gradient(0deg, transparent 0 23px, var(--line-soft) 23px 24px);
   pointer-events: none; opacity: 0.6;
 }
-.hero-solo-grid { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(430px, 520px); gap: 32px; align-items: center; }
-.hero-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.hero-gauge-row { display: flex; gap: 16px; justify-content: center; }
-.hero-gauge-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
-.hero-gauge-col .ring-label { font-family: var(--font-mono); font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+.hero-solo-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(560px, 610px);
+  grid-template-areas:
+    "main gauges"
+    "actions gauges";
+  gap: 12px 32px;
+  align-items: center;
+}
+.hero-side { grid-area: gauges; display: flex; flex-direction: column; gap: 14px; min-width: 0; justify-self: stretch; }
+.hero-gauge-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; justify-content: center; }
+.hero-gauge-col {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 9px;
+  padding: 12px 12px 11px;
+  background: oklch(0.995 0.002 85 / 0.94);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 3px 0 var(--s-aligned), 0 10px 24px oklch(0.62 0.02 250 / 0.08);
+}
+.hero-gauge-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; font-family: var(--font-mono); }
+.hero-gauge-head span { display: block; color: var(--fg-4); font-size: 9px; line-height: 1; text-transform: uppercase; letter-spacing: 0; }
+.hero-gauge-head b { display: block; margin-top: 4px; color: var(--fg); font-size: 14px; line-height: 1; font-weight: 650; letter-spacing: 0; }
+.hero-gauge-head strong { color: var(--fg); font-size: 13px; line-height: 1; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0; white-space: nowrap; }
+.hero-gauge-head strong span { display: inline; color: var(--fg-4); font-size: 10px; }
+.hero-gauge-svg { width: min(100%, 150px); height: auto; align-self: center; display: block; overflow: visible; filter: drop-shadow(0 5px 10px oklch(0.5 0.03 250 / 0.12)); }
+.hero-gauge-rate { font-family: var(--font-mono); font-size: 22px; font-weight: 650; fill: var(--fg); letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.hero-gauge-caption { font-family: var(--font-mono); font-size: 10px; fill: var(--fg-3); letter-spacing: 0; }
 .hero-gauge-legend { display: flex; gap: 16px; font-family: var(--font-mono); font-size: 9.5px; color: var(--fg-3); border-top: 1px solid var(--line-soft); padding-top: 10px; }
 .hero-gauge-legend .sw { display: inline-block; width: 8px; height: 8px; margin-right: 4px; vertical-align: 0; border-radius: 1px; }
 .hero-gauge-legend-row { display: flex; align-items: center; gap: 6px; }
 .hero-rings-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 28px 8px; }
 .hero-ring-footer { display: flex; gap: 24px; justify-content: center; align-items: center; padding: 0 28px 12px; }
 .hero-ring-label { font-family: var(--font-mono); text-align: center; }
-.hero-ring-detail { display: flex; gap: 5px; justify-content: center; align-items: center; flex-wrap: nowrap; white-space: nowrap; font-family: var(--font-mono); font-size: 10px; color: var(--fg-2); margin-top: 4px; font-variant-numeric: tabular-nums; max-width: 100%; }
-.hero-ring-detail > span { display: inline-flex; align-items: center; gap: 3px; }
-.hero-ring-detail .d { display: inline-block; width: 6px; height: 6px; border-radius: 1px; }
+.hero-ring-stack { display: flex; height: 9px; background: var(--bg-2); border: 1px solid var(--line-soft); overflow: hidden; }
+.hero-ring-stack > span { display: block; min-width: 0; height: 100%; }
+.hero-ring-detail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 8px; font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-2); font-variant-numeric: tabular-nums; max-width: 100%; }
+.hero-ring-detail > span { min-width: 0; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px; }
+.hero-ring-detail .d { display: inline-block; width: 7px; height: 7px; border-radius: 1px; }
+.hero-ring-detail em { min-width: 0; color: var(--fg-3); font-style: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hero-ring-detail b { color: var(--fg); font-size: 10.5px; font-weight: 600; white-space: nowrap; }
 .hero-ring-legend { display: flex; gap: 10px; font-family: var(--font-mono); font-size: 10px; color: var(--fg-3); }
 .hero-ring-legend .sw { display: inline-block; width: 8px; height: 8px; margin-right: 3px; vertical-align: -1px; border-radius: 1px; }
 .hero-ring-trend { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-3); }
 .hero-ring-trend .sw { display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; border-radius: 2px; }
-.hero-main    { display: flex; flex-direction: column; gap: 10px; }
+.hero-main    { grid-area: main; display: flex; flex-direction: column; gap: 10px; }
 .hero-eyebrow { display: flex; align-items: center; gap: 12px; }
 .hero-h1      { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; margin: 0; color: var(--fg); font-family: var(--font-serif, Georgia, serif); }
 .hero-lede    { font-size: 13px; color: var(--fg-2); line-height: 1.5; margin: 0; max-width: 520px; }
 .hero-lede b  { color: var(--fg); font-family: var(--font-mono); font-weight: 500; }
 
 .hero-action-grid {
+  grid-area: actions;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1px;
@@ -197,11 +229,16 @@
 
   .hero-solo-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "main"
+      "gauges"
+      "actions";
     gap: 18px;
     align-items: start;
   }
 
   .hero-gauge-row {
+    grid-template-columns: repeat(3, minmax(170px, 1fr));
     justify-content: flex-start;
     overflow-x: auto;
     padding-bottom: 4px;
@@ -213,7 +250,7 @@
   }
 
   .hero-gauge-col {
-    flex: 0 0 128px;
+    padding: 11px;
   }
 
   .dim-grid {
@@ -286,11 +323,26 @@
   }
 
   .hero-gauge-row {
-    gap: 10px;
+    grid-template-columns: repeat(3, minmax(156px, 1fr));
+    gap: 8px;
   }
 
   .hero-gauge-col {
-    flex-basis: 112px;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .hero-gauge-svg {
+    width: min(100%, 132px);
+  }
+
+  .hero-gauge-rate {
+    font-size: 20px;
+  }
+
+  .hero-ring-detail {
+    gap: 4px 6px;
+    font-size: 10px;
   }
 
   .hero-action-grid {
