@@ -17,6 +17,21 @@ export function overallAlignment(apis) {
   return { aligned, total, rate: total ? aligned / total : 0 };
 }
 
+export function dimRate(apis, dimKey) {
+  const t = tally(apis, dimKey);
+  const aligned = t.aligned + t.reviewed;
+  const total = t.aligned + t.reviewed + t.fixing + t.unsupported + t.untested;
+  return total ? aligned / total : 0;
+}
+
+export function apiConsistencyRate(apis) {
+  let aligned = 0;
+  apis.forEach(a => {
+    if (DIMENSIONS.every(d => a.dims[d.key] === 'aligned' || a.dims[d.key] === 'reviewed')) aligned++;
+  });
+  return apis.length ? aligned / apis.length : 0;
+}
+
 export function weightedAlignment(apis) {
   let w = 0, wa = 0;
   apis.forEach(a => {

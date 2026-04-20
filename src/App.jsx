@@ -110,7 +110,7 @@ export default function App() {
     <>
       <Topbar search={search} setSearch={setSearch} matched={filtered.length} total={APIS.length} />
       <ScopeBar search={search} setSearch={setSearch} filtered={filtered} />
-      <HeroSection filtered={filtered} onFocus={setFocus} />
+      <HeroSection filtered={filtered} />
       <DimSection filtered={filtered} />
       <RepoSection onFocus={setFocus} />
       <TrendSection />

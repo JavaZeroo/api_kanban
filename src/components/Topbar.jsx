@@ -30,104 +30,43 @@ export default function Topbar({ search, setSearch }) {
   };
 
   return (
-    <Header
-      style={{
-        height: 44,
-        lineHeight: '44px',
-        padding: 0,
-        background: colors.panel,
-        borderBottom: '1px solid var(--line-hard)',
-        display: 'flex',
-        alignItems: 'stretch',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          fontWeight: 600,
-          letterSpacing: '-0.01em',
-          padding: '0 14px',
-          background: colors.fg,
-          color: colors.bg,
-          height: '100%',
-          cursor: 'pointer',
-        }}
-        onClick={() => navigate('/')}
-      >
-        <div
-          style={{
-            width: 18,
-            height: 18,
-            background: `linear-gradient(135deg, ${colors.npu} 50%, ${colors.cuda} 50%)`,
-            borderRadius: 3,
-          }}
-        />
-        <span style={{ fontSize: 13, fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" }}>ALIGN</span>
-        <span style={{ fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 10.5, opacity: 0.55 }}>v0.3</span>
+    <div className="topbar">
+      <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+        <div className="brand-mark" />
+        <span className="brand-title">ALIGN</span>
+        <span className="brand-sub">v0.3</span>
       </div>
-      <Menu
-        mode="horizontal"
-        selectedKeys={[getSelectedKey()]}
-        items={menuItems}
-        onClick={handleMenuClick}
-        style={{
-          height: 44,
-          lineHeight: '44px',
-          borderBottom: 'none',
-          flexShrink: 0,
-          fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
-          fontSize: 12,
-        }}
-      />
-      <div style={{ flex: 1, padding: '0 14px', display: 'flex', alignItems: 'center', borderRight: '1px solid var(--line)' }}>
-        <Input
-          prefix={<SearchOutlined style={{ color: 'var(--fg-3)' }} />}
-          placeholder="grep API, module, repo..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
-            fontSize: 12,
-          }}
-          suffix={
-            <span
-              style={{
-                fontSize: 10,
-                color: 'var(--fg-3)',
-                border: '1px solid var(--line)',
-                padding: '1px 5px',
-                borderRadius: 2,
-                fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
-              }}
-            >
-              ⌘K
-            </span>
-          }
-        />
+      <nav className="nav">
+        {menuItems.map(item => (
+          <a
+            key={item.key}
+            className={getSelectedKey() === item.key ? 'active' : ''}
+            onClick={() => handleMenuClick({ key: item.key })}
+            style={{ cursor: 'pointer' }}
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+      <div className="tb-cell flex">
+        <div className="search">
+          <SearchOutlined style={{ color: 'var(--fg-3)' }} />
+          <input
+            placeholder="grep API, module, repo..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            data-dashboard-search
+          />
+          {search && (
+            <button className="search-clear" onClick={() => setSearch('')} type="button">×</button>
+          )}
+          <span className="kbd">⌘K</span>
+        </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', padding: '0 14px', borderRight: '1px solid var(--line)', gap: 8, fontSize: 12 }}>
-        <span className="pill">
-          <span className="dot" />CI · 23 任务
-        </span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', padding: '0 14px', borderRight: '1px solid var(--line)', gap: 8 }}>
-        <span className="mono dim" style={{ fontSize: 11 }}>torch 2.7.0</span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', padding: '0 14px', borderRight: '1px solid var(--line)', gap: 8 }}>
-        <span className="mono dim" style={{ fontSize: 11 }}>CANN 8.1.RC2</span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', padding: '0 14px', marginLeft: 'auto' }}>
-        <Avatar size="small" style={{ background: colors.fg, color: colors.bg, fontSize: 10, fontWeight: 600, fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" }}>
-          ZS
-        </Avatar>
-      </div>
-    </Header>
+      <div className="tb-cell"><span className="pill"><span className="dot" />CI · 23 任务</span></div>
+      <div className="tb-cell"><span className="mono dim" style={{ fontSize: 11 }}>torch 2.7.0</span></div>
+      <div className="tb-cell"><span className="mono dim" style={{ fontSize: 11 }}>CANN 9.0.0</span></div>
+      <div className="tb-cell right"><div className="avatar">ZS</div></div>
+    </div>
   );
 }
