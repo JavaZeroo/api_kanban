@@ -42,10 +42,10 @@
 }
 
 .trend-card-main > .block-header {
-  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
-.trend-card-main > svg {
+.trend-card-main > div:not(.block-header) {
   flex: 1;
   min-height: 0;
 }
@@ -57,10 +57,10 @@
 }
 
 .trend-card-velocity > .block-header {
-  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
-.trend-card-velocity > svg {
+.trend-card-velocity > div:not(.block-header) {
   flex: 1;
   min-height: 0;
 }

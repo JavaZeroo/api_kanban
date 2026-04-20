@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { DIMENSIONS } from '../data/constants';
 
 const DIM_COLORS = {
@@ -14,8 +14,24 @@ const LINES = [
   { key: 'apiConsistency', label: 'API一致', color: DIM_COLORS.apiConsistency },
 ];
 
+function useContainerSize(ref, fallbackW, fallbackH) {
+  const [size, setSize] = useState({ width: fallbackW, height: fallbackH });
+  useEffect(() => {
+    if (!ref.current) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width > 0 && height > 0) setSize({ width, height });
+    });
+    ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, []);
+  return size;
+}
+
 export default function DualTrend({ data }) {
-  const w = 800, h = 150, pad = { t: 8, r: 60, b: 20, l: 6 };
+  const containerRef = useRef(null);
+  const { width: w, height: h } = useContainerSize(containerRef, 800, 150);
+  const pad = { t: 8, r: 60, b: 20, l: 6 };
   const iw = w - pad.l - pad.r, ih = h - pad.t - pad.b;
   const vals = data.flatMap(d => LINES.map(l => d[l.key]));
   const dataMin = Math.min(...vals), dataMax = Math.max(...vals);
@@ -33,47 +49,49 @@ export default function DualTrend({ data }) {
     data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(d[l.key]).toFixed(1)}`).join(' ')
   );
   const [hv, setHv] = useState(null);
-  const ref = useRef(null);
   const onMove = e => {
-    const r = ref.current.getBoundingClientRect();
-    const mx = (e.clientX - r.left) / r.width * w;
+    const r = containerRef.current.getBoundingClientRect();
+    const mx = (e.clientX - r.left);
     const idx = Math.max(0, Math.min(data.length - 1, Math.round((mx - pad.l) / iw * (data.length - 1))));
     setHv(idx);
   };
   return (
-    <svg ref={ref} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ width: '100%', height: '100%', cursor: 'crosshair' }}
-      onMouseMove={onMove} onMouseLeave={() => setHv(null)}>
-      {ticks.map(t => (
-        <g key={t}>
-          <line x1={pad.l} x2={w - pad.r} y1={y(t)} y2={y(t)} stroke="var(--line-soft)" strokeDasharray="1 2" />
-          <text x={w - pad.r + 4} y={y(t) + 3} fontFamily="var(--font-mono)" fontSize="9" fill="var(--fg-4)">{(t * 100).toFixed(0)}%</text>
-        </g>
-      ))}
-      {[0, 7, 14, 21, 29].map(i => (
-        <text key={i} x={x(i)} y={h - 6} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" fill="var(--fg-4)">
-          {i === 29 ? '今天' : `-${29 - i}d`}
-        </text>
-      ))}
-      {LINES.map((l, i) => (
-        <path key={l.key} d={linePaths[i]} fill="none" stroke={l.color} strokeWidth={l.key === 'apiConsistency' ? 2.2 : 1.2} strokeDasharray={l.key === 'apiConsistency' ? undefined : '4 3'} strokeLinejoin="round" />
-      ))}
-      {LINES.map(l => (
-        <circle key={`ep-${l.key}`} cx={x(data.length - 1)} cy={y(data[data.length - 1][l.key])} r={l.key === 'apiConsistency' ? 3.5 : 2} fill={l.color} />
-      ))}
-      {hv !== null && (
-        <g>
-          <line x1={x(hv)} x2={x(hv)} y1={pad.t} y2={h - pad.b} stroke="var(--fg-3)" strokeDasharray="1 2" />
-          <g transform={`translate(${Math.min(x(hv) + 6, w - 160)}, ${pad.t + 4})`}>
-            <rect width="150" height={14 + LINES.length * 13} fill="var(--fg)" rx="2" />
-            <text x="8" y="14" fontFamily="var(--font-mono)" fontSize="9.5" fill="var(--bg-1)">{29 - hv === 0 ? '今天' : `${29 - hv}天前`}</text>
-            {LINES.map((l, i) => (
-              <text key={l.key} x="8" y={28 + i * 13} fontFamily="var(--font-mono)" fontSize="10" fill={l.color}>
-                {l.label} {(data[hv][l.key] * 100).toFixed(1)}%
-              </text>
-            ))}
+    <div ref={containerRef} style={{ flex: 1, minHeight: 0, width: '100%', position: 'relative' }}>
+      <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'crosshair' }}
+        onMouseMove={onMove} onMouseLeave={() => setHv(null)}>
+        {ticks.map(t => (
+          <g key={t}>
+            <line x1={pad.l} x2={w - pad.r} y1={y(t)} y2={y(t)} stroke="var(--line-soft)" strokeDasharray="1 2" />
+            <text x={w - pad.r + 4} y={y(t) + 3} fontFamily="var(--font-mono)" fontSize="9" fill="var(--fg-4)">{(t * 100).toFixed(0)}%</text>
           </g>
-        </g>
-      )}
-    </svg>
+        ))}
+        {[0, 7, 14, 21, 29].map(i => (
+          <text key={i} x={x(i)} y={h - 6} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" fill="var(--fg-4)">
+            {i === 29 ? '今天' : `-${29 - i}d`}
+          </text>
+        ))}
+        {LINES.map((l, i) => (
+          <path key={l.key} d={linePaths[i]} fill="none" stroke={l.color} strokeWidth={l.key === 'apiConsistency' ? 2.2 : 1.2} strokeDasharray={l.key === 'apiConsistency' ? undefined : '4 3'} strokeLinejoin="round" />
+        ))}
+        {LINES.map(l => (
+          <circle key={`ep-${l.key}`} cx={x(data.length - 1)} cy={y(data[data.length - 1][l.key])} r={l.key === 'apiConsistency' ? 3.5 : 2} fill={l.color} />
+        ))}
+        {hv !== null && (
+          <g>
+            <line x1={x(hv)} x2={x(hv)} y1={pad.t} y2={h - pad.b} stroke="var(--fg-3)" strokeDasharray="1 2" />
+            <g transform={`translate(${Math.min(x(hv) + 6, w - 160)}, ${pad.t + 4})`}>
+              <rect width="150" height={14 + LINES.length * 13} fill="var(--fg)" rx="2" />
+              <text x="8" y="14" fontFamily="var(--font-mono)" fontSize="9.5" fill="var(--bg-1)">{29 - hv === 0 ? '今天' : `${29 - hv}天前`}</text>
+              {LINES.map((l, i) => (
+                <text key={l.key} x="8" y={28 + i * 13} fontFamily="var(--font-mono)" fontSize="10" fill={l.color}>
+                  {l.label} {(data[hv][l.key] * 100).toFixed(1)}%
+                </text>
+              ))}
+            </g>
+          </g>
+        )}
+      </svg>
+    </div>
   );
 }
