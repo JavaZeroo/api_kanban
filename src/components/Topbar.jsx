@@ -1,4 +1,4 @@
-export default function Topbar({ search, setSearch }) {
+export default function Topbar({ search, setSearch, matched, total }) {
   return (
     <div className="topbar">
       <div className="brand">
@@ -17,7 +17,18 @@ export default function Topbar({ search, setSearch }) {
       <div className="tb-cell flex">
         <div className="search">
           <span style={{ color: 'var(--fg-3)' }}>⌕</span>
-          <input placeholder="grep API, module, repo..." value={search} onChange={e => setSearch(e.target.value)} />
+          <input
+            data-dashboard-search
+            placeholder="grep API, module, repo..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <span className="search-count">{matched?.toLocaleString?.() || 0}/{total?.toLocaleString?.() || 0}</span>
+          {search && (
+            <button className="search-clear" type="button" onClick={() => setSearch('')} aria-label="Clear search">
+              ×
+            </button>
+          )}
           <span className="kbd">⌘K</span>
         </div>
       </div>

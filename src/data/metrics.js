@@ -14,7 +14,7 @@ export function overallAlignment(apis) {
       if (a.dims[d.key] === 'aligned' || a.dims[d.key] === 'reviewed') aligned++;
     })
   );
-  return { aligned, total, rate: aligned / total };
+  return { aligned, total, rate: total ? aligned / total : 0 };
 }
 
 export function weightedAlignment(apis) {

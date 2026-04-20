@@ -1,5 +1,5 @@
 export default function HeroGauge({ stats, label }) {
-  const size = 77, cx = size / 2, cy = size / 2, r = 29, tk = 6;
+  const size = 100, cx = size / 2, cy = size / 2, r = 38, tk = 7;
   const startDeg = 210, endDeg = 510, totalDeg = endDeg - startDeg;
   const { total, aligned, partial, fixing, untested } = stats;
   const rate = (aligned + partial) / total;
@@ -28,28 +28,22 @@ export default function HeroGauge({ stats, label }) {
   });
 
   return (
-    <div style={{ textAlign: 'center' }}>
-      <svg viewBox={`0 0 ${size} ${size}`} style={{ width: '70%', height: 'auto' }}>
+    <div className="hero-gauge-col">
+      <svg viewBox={`0 0 ${size} ${size}`} style={{ width: '110px', height: 'auto' }}>
         <path d={arcPath(startDeg, endDeg, r)} fill="none" stroke="var(--bg-2)" strokeWidth={tk} strokeLinecap="butt" />
         {segPaths.filter(Boolean).map(s => (
           <path key={s.key} d={s.path} fill="none" stroke={s.color} strokeWidth={tk} strokeLinecap="butt" />
         ))}
-        <text x={cx} y={cy + 4} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="12" fontWeight="500" fill="var(--fg)" style={{ letterSpacing: '-0.03em' }}>
-          {(rate * 100).toFixed(2)}%
-        </text>
-        <text x={cx} y={cy + 12} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="6" fill="var(--fg-3)">
-          {label}
+        <text x={cx} y={cy + 2} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="16" fontWeight="500" fill="var(--fg)" style={{ letterSpacing: '-0.02em' }}>
+          {(rate * 100).toFixed(1)}%
         </text>
       </svg>
-      <div className="hero-ring-detail">
-        <span style={{ color: 'var(--s-aligned)' }}>{aligned}</span>
-        <span className="dim">·</span>
-        <span style={{ color: 'var(--s-reviewed)' }}>{partial}</span>
-        <span className="dim">·</span>
-        <span style={{ color: 'var(--s-fixing)' }}>{fixing}</span>
-        <span className="dim">·</span>
-        <span style={{ color: 'var(--fg-4)' }}>{untested}</span>
-        <span className="dim" style={{ marginLeft: 2 }}>/ {total}</span>
+      <div className="ring-label">{label}</div>
+      <div className="hero-ring-detail" title={`对齐 ${aligned} · 复核 ${partial} · 待修 ${fixing} · 未测 ${untested} · 合计 ${total}`}>
+        <span><i className="d" style={{ background: 'var(--s-aligned)' }} />{aligned}</span>
+        <span><i className="d" style={{ background: 'var(--s-reviewed)' }} />{partial}</span>
+        <span><i className="d" style={{ background: 'var(--s-fixing)' }} />{fixing}</span>
+        <span><i className="d" style={{ background: 'var(--s-untested)', border: '1px solid var(--line)' }} />{untested}</span>
       </div>
     </div>
   );

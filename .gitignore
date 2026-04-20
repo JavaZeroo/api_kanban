@@ -31,3 +31,16 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# tool profiles & temp
+.chrome-profile-*
+.edge-profile-*
+.tmp/
+.playwright-mcp/
+.mcp.json
+.claude/
+CLAUDE.md
+
+# scripts & screenshots
+*.ps1
+r*-*.png

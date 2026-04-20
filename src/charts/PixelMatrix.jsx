@@ -25,18 +25,29 @@ const LABEL_MAP = {
 
 export default function PixelMatrix({ apis, onFocus }) {
   const [tip, setTip] = useState(null);
+  const visibleModules = MODULES
+    .map(mod => ({ mod, list: apis.filter(a => a.module === mod.key), rate: moduleRate(apis, mod.key) }))
+    .filter(row => row.list.length > 0);
+
+  if (!visibleModules.length) {
+    return (
+      <div className="pxmat-empty">
+        <b>没有匹配的 API</b>
+        <span>调整搜索词、矩阵筛选或模块筛选后再查看。</span>
+      </div>
+    );
+  }
+
   return (
     <div onMouseLeave={() => setTip(null)}>
-      {MODULES.map(mod => {
-        const list = apis.filter(a => a.module === mod.key);
-        const r = moduleRate(apis, mod.key);
+      {visibleModules.map(({ mod, list, rate: r }) => {
         return (
-          <div key={mod.key} style={{ display: 'grid', gridTemplateColumns: '140px 1fr 54px', gap: 10, alignItems: 'center', padding: '3px 0', borderBottom: '1px dashed var(--line-soft)' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, textAlign: 'right', color: 'var(--fg-2)', paddingRight: 8 }}>
+          <div key={mod.key} className="pxmat-row">
+            <div className="pxmat-module">
               <b style={{ color: 'var(--fg)', fontWeight: 500 }}>{mod.name}</b>
               <div style={{ color: 'var(--fg-4)', fontSize: 10 }}>{list.length} API</div>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, minWidth: 0 }}>
+            <div className="pxmat-cells">
               {list.map(a => {
                 const c = apiColor(a);
                 return (
@@ -49,7 +60,7 @@ export default function PixelMatrix({ apis, onFocus }) {
                 );
               })}
             </div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+            <div className="pxmat-rate">
               {(r.rate * 100).toFixed(0)}%
             </div>
           </div>

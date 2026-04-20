@@ -3,7 +3,16 @@ import { useState, useRef } from 'react';
 export default function DualTrend({ data }) {
   const w = 800, h = 150, pad = { t: 8, r: 60, b: 20, l: 6 };
   const iw = w - pad.l - pad.r, ih = h - pad.t - pad.b;
-  const min = 0.45, max = 0.95;
+  const vals = data.flatMap(d => [d.rate, d.weighted]);
+  const dataMin = Math.min(...vals), dataMax = Math.max(...vals);
+  const span = Math.max(0.05, dataMax - dataMin);
+  const minRaw = dataMin - span * 0.35;
+  const maxRaw = Math.min(1, dataMax + span * 0.25);
+  const min = Math.max(0, Math.floor(minRaw * 20) / 20);
+  const max = Math.min(1, Math.ceil(maxRaw * 20) / 20);
+  const step = (max - min) >= 0.25 ? 0.1 : 0.05;
+  const ticks = [];
+  for (let t = min; t <= max + 1e-6; t += step) ticks.push(Number(t.toFixed(2)));
   const x = i => pad.l + (i / (data.length - 1)) * iw;
   const y = v => pad.t + (1 - (v - min) / (max - min)) * ih;
   const rawD = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(d.rate).toFixed(1)}`).join(' ');
@@ -19,7 +28,7 @@ export default function DualTrend({ data }) {
   return (
     <svg ref={ref} viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: h, cursor: 'crosshair' }}
       onMouseMove={onMove} onMouseLeave={() => setHv(null)}>
-      {[0.5, 0.6, 0.7, 0.8, 0.9].map(t => (
+      {ticks.map(t => (
         <g key={t}>
           <line x1={pad.l} x2={w - pad.r} y1={y(t)} y2={y(t)} stroke="var(--line-soft)" strokeDasharray="1 2" />
           <text x={w - pad.r + 4} y={y(t) + 3} fontFamily="var(--font-mono)" fontSize="9" fill="var(--fg-4)">{(t * 100).toFixed(0)}%</text>
@@ -32,8 +41,12 @@ export default function DualTrend({ data }) {
       ))}
       <path d={wD} fill="none" stroke="var(--npu)" strokeWidth="1.6" strokeLinejoin="round" />
       <path d={rawD} fill="none" stroke="var(--fg-3)" strokeWidth="1" strokeDasharray="3 2" />
-      <line x1={pad.l} x2={w - pad.r} y1={y(1.0)} y2={y(1.0)} stroke="var(--cuda)" strokeWidth="1.2" />
-      <text x={w - pad.r - 4} y={y(1.0) - 3} textAnchor="end" fontFamily="var(--font-mono)" fontSize="9" fill="var(--cuda)">CUDA 基准 100%</text>
+      {max >= 1 && (
+        <>
+          <line x1={pad.l} x2={w - pad.r} y1={y(1.0)} y2={y(1.0)} stroke="var(--cuda)" strokeWidth="1.2" />
+          <text x={w - pad.r - 4} y={y(1.0) - 3} textAnchor="end" fontFamily="var(--font-mono)" fontSize="9" fill="var(--cuda)">CUDA 基准 100%</text>
+        </>
+      )}
       <circle cx={x(data.length - 1)} cy={y(data[data.length - 1].weighted)} r="3" fill="var(--npu)" />
       <circle cx={x(data.length - 1)} cy={y(data[data.length - 1].rate)} r="2.5" fill="var(--fg-3)" />
       {hv !== null && (

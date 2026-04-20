@@ -2,18 +2,12 @@ import { DIMENSIONS, STATUS_META, TREND_30D, tally } from '../data';
 import { MiniRadial, Spark } from '../charts';
 
 const DIM_COLORS = ['var(--npu)', 'oklch(0.6 0.18 280)', 'oklch(0.6 0.15 195)', 'oklch(0.6 0.16 340)'];
-const DIM_HINTS  = {
-  func: '输出 shape/dtype/语义与 PyTorch 参考一致',
-  prec: 'atol≤1e-5, rtol≤1e-4 对齐；默认 fp32/fp16/bf16',
-  mem:  '峰值内存 ≤ 1.1× 参考 · 无内存泄漏',
-  det:  '相同输入 ×10 次运行完全一致',
-};
 
 export default function DimSection({ filtered }) {
   const dimAgg = DIMENSIONS.map(d => {
     const t   = tally(filtered, d.key);
     const tot = Object.values(t).reduce((a, b) => a + b, 0);
-    return { d, t, tot, rate: (t.aligned + t.reviewed) / tot, rawRate: t.aligned / tot };
+    return { d, t, tot, rate: tot ? (t.aligned + t.reviewed) / tot : 0, rawRate: tot ? t.aligned / tot : 0 };
   });
 
   return (
@@ -22,7 +16,6 @@ export default function DimSection({ filtered }) {
         <span className="idx">§1</span>
         <div>
           <span className="title">四维度 深度拆解</span>
-          <span className="sub">功能 / 精度 / 内存 / 确定性 · 每维度独立运行、独立打分</span>
         </div>
         <span className="right mono">状态分布 · 趋势</span>
       </div>
@@ -36,7 +29,6 @@ export default function DimSection({ filtered }) {
                 <div className="dim-letter-big" style={{ background: dimColor }}>{d.letter}</div>
                 <div style={{ flex: 1 }}>
                   <div className="dim-name">{d.name}</div>
-                  <div className="dim-hint">{DIM_HINTS[d.key]}</div>
                 </div>
               </div>
               <div className="dim-metric">
@@ -55,8 +47,8 @@ export default function DimSection({ filtered }) {
               <div className="dim-stack-wrap">
                 <div className="dim-stack">
                   {['aligned', 'reviewed', 'fixing', 'unsupported', 'untested'].map(k => (
-                    <span key={k} style={{ width: `${t[k] / tot * 100}%`, background: `var(--s-${k})` }} title={`${STATUS_META[k].label} ${t[k]}`}>
-                      {t[k] / tot > 0.08 && <em>{t[k]}</em>}
+                    <span key={k} style={{ width: `${tot ? t[k] / tot * 100 : 0}%`, background: `var(--s-${k})` }} title={`${STATUS_META[k].label} ${t[k]}`}>
+                      {tot ? t[k] / tot > 0.08 && <em>{t[k]}</em> : null}
                     </span>
                   ))}
                 </div>
