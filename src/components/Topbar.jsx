@@ -34,7 +34,7 @@ export default function Topbar({ search, setSearch, matched, total }) {
       </div>
       <div className="tb-cell"><span className="pill"><span className="dot" />CI · 23 任务</span></div>
       <div className="tb-cell"><span className="mono dim" style={{ fontSize: 11 }}>torch 2.7.0</span></div>
-      <div className="tb-cell"><span className="mono dim" style={{ fontSize: 11 }}>CANN 8.1.RC2</span></div>
+      <div className="tb-cell"><span className="mono dim" style={{ fontSize: 11 }}>CANN 9.0.0</span></div>
       <div className="tb-cell right"><div className="avatar">ZS</div></div>
     </div>
   );

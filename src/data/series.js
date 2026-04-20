@@ -1,23 +1,40 @@
 import { mulberry32 } from './utils';
 import { DIMENSIONS, DTYPES } from './constants';
 import { APIS } from './apis';
-import { overallAlignment } from './metrics';
+import { overallAlignment, dimRate, apiConsistencyRate } from './metrics';
 
 export const TREND_30D = (() => {
   const arr = [];
   const endRate = overallAlignment(APIS).rate;
   const startRate = Math.max(0.1, endRate - 0.08);
+  const dimEndRates = {};
+  const dimStartRates = {};
+  DIMENSIONS.forEach(d => {
+    dimEndRates[d.key] = dimRate(APIS, d.key);
+    dimStartRates[d.key] = Math.max(0.1, dimEndRates[d.key] - 0.08);
+  });
+  const endConsistency = apiConsistencyRate(APIS);
+  const startConsistency = Math.max(0.05, endConsistency - 0.10);
   for (let i = 0; i < 30; i++) {
     const t = i / 29;
     const base = startRate + (endRate - startRate) * (t * t * (3 - 2 * t));
     const noise = (mulberry32(100 + i)() - 0.5) * 0.006;
-    arr.push({
+    const entry = {
       day: i,
       rate:     Math.max(0, Math.min(1, base + noise)),
       weighted: Math.max(0, Math.min(1, base + 0.07 + noise)),
       newlyAligned: Math.floor(3 + mulberry32(200 + i)() * 14),
       newlyFailed:  Math.floor(mulberry32(300 + i)() * 4),
+    };
+    DIMENSIONS.forEach(d => {
+      const dimBase = dimStartRates[d.key] + (dimEndRates[d.key] - dimStartRates[d.key]) * (t * t * (3 - 2 * t));
+      const dimNoise = (mulberry32(d.key.charCodeAt(0) * 100 + i)() - 0.5) * 0.006;
+      entry[d.key] = Math.max(0, Math.min(1, dimBase + dimNoise));
     });
+    const conBase = startConsistency + (endConsistency - startConsistency) * (t * t * (3 - 2 * t));
+    const conNoise = (mulberry32(999 + i)() - 0.5) * 0.005;
+    entry.apiConsistency = Math.max(0, Math.min(1, conBase + conNoise));
+    arr.push(entry);
   }
   return arr;
 })();

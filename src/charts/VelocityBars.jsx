@@ -12,7 +12,7 @@ export default function VelocityBars() {
   const scaleUp = v => (v / maxPos) * (ih * clamped);
   const scaleDn = v => (v / maxNeg) * (ih * (1 - clamped));
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: h }}>
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
       <line x1={pad.l} x2={w - pad.r} y1={y0} y2={y0} stroke="var(--line-hard)" />
       {VELOCITY.map((v, i) => {
         const x = pad.l + i * (iw / VELOCITY.length);

@@ -17,10 +17,9 @@
 .repo-section-grid { display: grid; grid-template-columns: 2fr 1fr; background: var(--panel); }
 .trend-section-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.85fr);
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-areas:
-    "trend feed"
-    "velocity feed";
+    "trend velocity feed";
   background: var(--panel);
 }
 
@@ -33,6 +32,8 @@
 
 .trend-card {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .trend-card-main {
@@ -40,9 +41,13 @@
   border-right: 1px solid var(--line);
 }
 
-.trend-card-feed {
-  grid-area: feed;
-  border-bottom: 0;
+.trend-card-main > .block-header {
+  flex-shrink: 0;
+}
+
+.trend-card-main > svg {
+  flex: 1;
+  min-height: 0;
 }
 
 .trend-card-velocity {
@@ -51,83 +56,18 @@
   border-bottom: 0;
 }
 
-.trend-kpis {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  margin-top: 10px;
-  background: var(--line-soft);
-  border: 1px solid var(--line-soft);
-  font-family: var(--font-mono);
+.trend-card-velocity > .block-header {
+  flex-shrink: 0;
 }
 
-.trend-kpis > div {
-  background: var(--panel);
-  padding: 8px 10px;
-  min-width: 0;
+.trend-card-velocity > svg {
+  flex: 1;
+  min-height: 0;
 }
 
-.trend-kpis span,
-.trend-velocity-stats span {
-  display: block;
-  font-size: 9.5px;
-  color: var(--fg-3);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.trend-kpis b,
-.trend-velocity-stats b {
-  display: block;
-  margin-top: 2px;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--fg);
-  font-variant-numeric: tabular-nums;
-}
-
-.trend-kpis b.good,
-.trend-velocity-stats b.good {
-  color: var(--s-aligned);
-}
-
-.trend-kpis b.bad,
-.trend-velocity-stats b.bad {
-  color: var(--s-fixing);
-}
-
-.trend-velocity-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 172px;
-  gap: 14px;
-  align-items: stretch;
-}
-
-.trend-velocity-stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--line-soft);
-  border: 1px solid var(--line-soft);
-  font-family: var(--font-mono);
-}
-
-.trend-velocity-stats > div {
-  background: var(--panel);
-  padding: 9px 10px;
-  min-width: 0;
-}
-
-.trend-velocity-stats em {
-  display: block;
-  margin-top: 1px;
-  font-size: 10px;
-  color: var(--fg-4);
-  font-style: normal;
-  font-variant-numeric: tabular-nums;
+.trend-card-feed {
+  grid-area: feed;
+  border-bottom: 0;
 }
 
 /* ── Hero section ── */
@@ -184,14 +124,6 @@
   box-shadow: inset 0 2px 0 var(--line-soft);
 }
 
-.hero-action-card.hot {
-  box-shadow: inset 0 2px 0 var(--s-fixing);
-}
-
-.hero-action-card.module {
-  box-shadow: inset 0 2px 0 var(--npu);
-}
-
 .hero-action-card span {
   display: block;
   color: var(--fg-3);
@@ -218,10 +150,6 @@
   text-overflow: ellipsis;
 }
 
-.hero-action-card.hot b {
-  color: var(--s-fixing);
-}
-
 .hero-action-card em {
   display: block;
   margin-top: 4px;
@@ -232,111 +160,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.hero-risk-panel {
-  border: 1px solid var(--line-soft);
-  background: oklch(1 0 0 / 0.72);
-  font-family: var(--font-mono);
-}
-
-.hero-risk-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--line-soft);
-  background: var(--bg-1);
-}
-
-.hero-risk-head span {
-  color: var(--fg-3);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.hero-risk-head b {
-  color: var(--fg);
-  font-size: 10.5px;
-  font-weight: 500;
-}
-
-.hero-risk-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.hero-risk-row {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-  min-height: 34px;
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--line-soft);
-  cursor: pointer;
-}
-
-.hero-risk-row:last-child {
-  border-bottom: 0;
-}
-
-.hero-risk-row:hover,
-.hero-risk-row:focus-visible {
-  background: var(--panel);
-  outline: 0;
-}
-
-.hero-risk-row:focus-visible {
-  box-shadow: inset 0 0 0 1px var(--npu);
-}
-
-.hero-risk-rank {
-  color: var(--fg-4);
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-}
-
-.hero-risk-api {
-  min-width: 0;
-}
-
-.hero-risk-api b {
-  display: block;
-  color: var(--fg);
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hero-risk-api em {
-  display: block;
-  margin-top: 2px;
-  color: var(--fg-4);
-  font-size: 9.5px;
-  font-style: normal;
-  line-height: 1.15;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hero-risk-status {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  min-width: 110px;
-}
-
-.hero-risk-status i {
-  font-size: 9.5px;
-  font-style: normal;
-  white-space: nowrap;
 }
 
 .hero-kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); }
@@ -384,10 +207,6 @@
     padding-bottom: 4px;
   }
 
-  .hero-risk-row {
-    grid-template-columns: 28px minmax(0, 1fr) minmax(96px, auto);
-  }
-
   .hero-action-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: none;
@@ -422,14 +241,21 @@
       "feed";
   }
 
-  .repo-section-grid > .block,
   .trend-section-grid > .block {
     border-right: 0 !important;
     border-bottom: 1px solid var(--line) !important;
   }
 
-  .repo-section-grid > .block:last-child,
   .trend-section-grid > .block:last-child {
+    border-bottom: 0 !important;
+  }
+
+  .repo-section-grid > .block {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line) !important;
+  }
+
+  .repo-section-grid > .block:last-child {
     border-bottom: 0 !important;
   }
 
@@ -471,37 +297,12 @@
     grid-template-columns: 1fr;
   }
 
-  .hero-risk-head,
-  .hero-risk-row {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-
-  .hero-risk-row {
-    grid-template-columns: 22px minmax(0, 1fr);
-    gap: 8px;
-  }
-
-  .hero-risk-status {
-    grid-column: 2;
-    justify-content: flex-start;
-    min-width: 0;
-    flex-wrap: wrap;
-    gap: 4px 6px;
-  }
-
   .dim-grid {
     grid-template-columns: 1fr;
   }
 
   .block {
     padding: 12px;
-  }
-
-  .trend-kpis,
-  .trend-velocity-row,
-  .trend-velocity-stats {
-    grid-template-columns: 1fr;
   }
 }
 
