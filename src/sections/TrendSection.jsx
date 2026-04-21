@@ -1,6 +1,7 @@
 import { TREND_30D, DIFF_FEED } from '../data';
 import { DIMENSIONS } from '../data/constants';
 import { DualTrend, VelocityBars, DiffFeed } from '../charts';
+import LevelFilter from '../components/LevelFilter';
 
 const DIM_COLORS = {
   func: 'oklch(0.65 0.18 45)',
@@ -10,7 +11,7 @@ const DIM_COLORS = {
   apiConsistency: 'oklch(0.72 0.14 300)',
 };
 
-export default function TrendSection() {
+export default function TrendSection({ levelFilter }) {
   const adds = DIFF_FEED.filter(d => d.type === 'add').length;
   const reviews = DIFF_FEED.filter(d => d.type === 'mod').length;
   const regressions = DIFF_FEED.filter(d => d.type === 'del').length;
@@ -19,10 +20,11 @@ export default function TrendSection() {
     <>
       <div className="sec-head">
         <span className="idx">§3</span>
-        <div>
-          <span className="title">Trend · Velocity</span>
+        <div className="sec-head-title">
+          <span className="title">趋势 · 迭代速度</span>
+          {levelFilter ? <LevelFilter {...levelFilter} /> : null}
         </div>
-        <span className="right mono">30 days · 12 weeks</span>
+        <span className="right mono">30 天 · 12 周</span>
       </div>
       <section className="trend-section-grid">
         <div className="block trend-card trend-card-main">

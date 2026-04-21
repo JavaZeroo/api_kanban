@@ -11,60 +11,6 @@ const STATUS_COLORS = {
 };
 
 export default function PixelMatrix({ apis, onFocus }) {
-  const seriesData = useMemo(() => {
-    const data = [];
-    let y = 0;
-    MODULES.forEach(mod => {
-      const list = apis.filter(a => a.module === mod.key);
-      list.forEach((a, x) => {
-        const statuses = DIMENSIONS.map(d => a.dims[d.key]);
-        // each api rendered as a 2x2 quad block
-        data.push({
-          value: [x, y, a, statuses],
-          itemStyle: { color: 'transparent', borderColor: colors.panel, borderWidth: 1 },
-        });
-      });
-      y += 1;
-    });
-    return data;
-  }, [apis]);
-
-  const customRender = (params, api) => {
-    const x = api.value(0);
-    const y = api.value(1);
-    const a = api.value(2);
-    const statuses = api.value(3);
-    const size = 14;
-    const gap = 2;
-    const coord = api.coord([x, y]);
-    const x0 = coord[0] - size / 2;
-    const y0 = coord[1] - size / 2;
-    const rects = [];
-    const positions = [
-      [0, 0], [1, 0], [0, 1], [1, 1],
-    ];
-    positions.forEach(([px, py], i) => {
-      rects.push({
-        type: 'rect',
-        shape: {
-          x: x0 + px * (size / 2 + 0.5),
-          y: y0 + py * (size / 2 + 0.5),
-          width: size / 2 - 0.5,
-          height: size / 2 - 0.5,
-        },
-        style: { fill: STATUS_COLORS[statuses[i]] || colors.untested },
-      });
-    });
-    return {
-      type: 'group',
-      children: rects,
-      style: { cursor: 'pointer' },
-      onclick: () => onFocus && onFocus(a),
-    };
-  };
-
-  // Since ECharts custom series click handling is limited, use a simpler heatmap approach
-  // where each API is a cell colored by its "worst" dimension status
   const heatData = useMemo(() => {
     const data = [];
     let y = 0;
@@ -86,6 +32,19 @@ export default function PixelMatrix({ apis, onFocus }) {
     });
     return data;
   }, [apis]);
+
+  const visibleModules = useMemo(() => {
+    return MODULES.filter(mod => apis.some(a => a.module === mod.key));
+  }, [apis]);
+
+  if (!visibleModules.length) {
+    return (
+      <div className="pxmat-empty">
+        <b>没有匹配的 API</b>
+        <span>调整搜索词或等级筛选后再查看。</span>
+      </div>
+    );
+  }
 
   const maxX = Math.max(...heatData.map(d => d.value[0]), 0) + 1;
   const option = {

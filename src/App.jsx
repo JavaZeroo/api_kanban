@@ -7,6 +7,7 @@ import TweaksPanel from './components/TweaksPanel';
 import ImportPanel from './components/ImportPanel';
 
 const TWEAKS_DEFAULTS = { matrixDensity: 'dense', showCudaBaseline: true };
+const ALL_LEVELS = ['L0', 'L1', 'L2'];
 
 function ScopeBar({ search, setSearch, filtered, customApis, onResetData }) {
   const total = filtered.length;
@@ -69,9 +70,23 @@ export default function App() {
   const [tweaksOn, setTweaksOn] = useState(false);
   const [importOn, setImportOn] = useState(false);
   const [tweaks, setTweaks] = useState(TWEAKS_DEFAULTS);
+  const [levels, setLevels] = useState(() => new Set(ALL_LEVELS));
   const [customApis, setCustomApis] = useState(null);
 
   const APIS = customApis || APIS_DEFAULT;
+
+  const toggleLevel = (lv) => {
+    setLevels(prev => {
+      const next = new Set(prev);
+      if (next.has(lv)) {
+        if (next.size === 1) return prev;
+        next.delete(lv);
+      } else {
+        next.add(lv);
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     const onMsg = (e) => {
@@ -109,7 +124,7 @@ export default function App() {
     setCustomApis(null);
   }, []);
 
-  const filtered = useMemo(() => {
+  const searchFiltered = useMemo(() => {
     if (!search.trim()) return APIS;
     const q = search.toLowerCase();
     return APIS.filter(a => {
@@ -125,15 +140,28 @@ export default function App() {
     });
   }, [search]);
 
+  const levelCounts = useMemo(() => {
+    const counts = { L0: 0, L1: 0, L2: 0 };
+    searchFiltered.forEach(a => { if (counts[a.level] != null) counts[a.level]++; });
+    return counts;
+  }, [searchFiltered]);
+
+  const filtered = useMemo(
+    () => searchFiltered.filter(a => levels.has(a.level)),
+    [searchFiltered, levels]
+  );
+
+  const levelFilterProps = { levels, onToggle: toggleLevel, counts: levelCounts };
+
   return (
     <>
       <Topbar search={search} setSearch={setSearch} matched={filtered.length} total={APIS.length} onImportClick={() => setImportOn(true)} />
       <ScopeBar search={search} setSearch={setSearch} filtered={filtered} customApis={customApis} onResetData={handleResetData} />
-      <HeroSection filtered={filtered} />
-      <DimSection filtered={filtered} />
-      <RepoSection onFocus={setFocus} />
-      <TrendSection />
-      <MatrixSection filtered={filtered} onFocus={setFocus} />
+      <HeroSection filtered={searchFiltered} />
+      <DimSection filtered={filtered} levelFilter={levelFilterProps} />
+      <RepoSection onFocus={setFocus} levelFilter={levelFilterProps} />
+      <TrendSection levelFilter={levelFilterProps} />
+      <MatrixSection filtered={filtered} onFocus={setFocus} levelFilter={levelFilterProps} />
       <FocusCard focus={focus} onClose={() => setFocus(null)} />
       <TweaksPanel tweaksOn={tweaksOn} tweaks={tweaks} setTweak={setTweak} />
       <ImportPanel open={importOn} onClose={() => setImportOn(false)} onImport={handleImport} />

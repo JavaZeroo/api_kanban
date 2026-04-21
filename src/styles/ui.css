@@ -40,3 +40,18 @@
 .serif { font-family: var(--font-serif); }
 .dim   { color: var(--fg-3); }
 .dim2  { color: var(--fg-4); }
+
+
+/* ── Level filter chips ── */
+.level-filter {
+  display: flex; gap: 4px; align-items: center;
+}
+.level-chip {
+  padding: 2px 8px; border-radius: 2px;
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+  border: 1px solid var(--line-hard); color: var(--fg-3);
+  background: transparent; cursor: pointer; transition: all 0.12s;
+  letter-spacing: 0.04em;
+}
+.level-chip:hover { border-color: var(--fg-3); color: var(--fg-2); }
+.level-chip.active { background: var(--npu); border-color: var(--npu); color: var(--bg); }

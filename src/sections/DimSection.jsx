@@ -2,6 +2,7 @@ import { ProCard } from '@ant-design/pro-components';
 import { DIMENSIONS, STATUS_META, TREND_30D, tally } from '../data';
 import { MiniRadial, Spark } from '../charts';
 import { colors } from '../components/EChart';
+import LevelFilter from '../components/LevelFilter';
 
 const DIM_COLORS = [colors.npu, '#7a5ac8', '#3a9aaa', '#c85a8a'];
 const DIM_HINTS  = {
@@ -35,7 +36,7 @@ function StackedBar({ t, tot }) {
   );
 }
 
-export default function DimSection({ filtered }) {
+export default function DimSection({ filtered, levelFilter }) {
   const dimAgg = DIMENSIONS.map(d => {
     const t   = tally(filtered, d.key);
     const tot = Object.values(t).reduce((a, b) => a + b, 0);
@@ -46,9 +47,9 @@ export default function DimSection({ filtered }) {
     <>
       <div className="sec-head">
         <span className="idx">§1</span>
-        <div>
+        <div className="sec-head-title">
           <span className="title">四维度 深度拆解</span>
-          <span className="sub">功能 / 精度 / 内存 / 确定性 </span>
+          {levelFilter ? <LevelFilter {...levelFilter} /> : null}
         </div>
         <span className="right mono">状态分布 · 趋势</span>
       </div>

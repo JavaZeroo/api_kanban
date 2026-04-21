@@ -4,12 +4,17 @@ import { HeroGauge } from '../charts';
 import { colors } from '../components/EChart';
 
 function buildStats(list) {
-  const totalDims     = list.length * DIMENSIONS.length || 1;
-  const alignedCount  = list.reduce((s, a) => s + DIMENSIONS.filter(d => a.dims[d.key] === 'aligned').length, 0);
-  const reviewedCount = list.reduce((s, a) => s + DIMENSIONS.filter(d => a.dims[d.key] === 'reviewed').length, 0);
-  const fixingCount   = list.reduce((s, a) => s + DIMENSIONS.filter(d => a.dims[d.key] === 'fixing').length, 0);
-  const untestedCount = list.reduce((s, a) => s + DIMENSIONS.filter(d => a.dims[d.key] === 'untested').length, 0);
-  return { total: totalDims, aligned: alignedCount, partial: reviewedCount, fixing: fixingCount, untested: untestedCount };
+  const stats = { total: list.length, aligned: 0, fixing: 0, untested: 0 };
+
+  list.forEach(api => {
+    const dims = DIMENSIONS.map(d => api.dims[d.key]);
+    if (dims.every(v => v === 'untested' || v === 'unsupported')) stats.untested++;
+    else if (dims.some(v => v === 'fixing')) stats.fixing++;
+    else if (dims.every(v => v === 'aligned' || v === 'reviewed')) stats.aligned++;
+    else stats.untested++;
+  });
+
+  return stats;
 }
 
 export default function HeroSection({ filtered = [] }) {
@@ -42,26 +47,18 @@ export default function HeroSection({ filtered = [] }) {
           <p className="hero-lede">
             全量 <b>{APIS.length}</b> API · <b>{totalCases.toLocaleString()}</b> 用例 · 每日自动回归 · 覆盖 <b>{REPOS.length}</b> 个主流开源仓库
           </p>
-          <div className="hero-action-grid">
-            <div className="hero-action-card">
-              <span>所有 API 总数</span>
-              <b>{APIS.length.toLocaleString()}</b>
-              <em>全量</em>
+          <div className="hero-gauge-legend">
+            <div className="hero-gauge-legend-row">
+              <span><span className="sw" style={{ background: 'var(--npu)' }} />加权</span>
+              <b>{(wv.rate * 100).toFixed(1)}%</b>
             </div>
-            <div className="hero-action-card">
-              <span>L0+L1 API 总数</span>
-              <b>{l01.length.toLocaleString()}</b>
-              <em>{APIS.length ? (l01.length / APIS.length * 100).toFixed(1) : '0.0'}% / 全量</em>
+            <div className="hero-gauge-legend-row">
+              <span><span className="sw" style={{ background: 'var(--fg-3)', border: '1px dashed var(--fg-3)' }} />平均</span>
+              <b>{(ov.rate * 100).toFixed(1)}%</b>
             </div>
-            <div className="hero-action-card">
-              <span>L0+L1 已覆盖 API</span>
-              <b>{l01Covered.length.toLocaleString()}</b>
-              <em>{l01.length ? (l01Covered.length / l01.length * 100).toFixed(1) : '0.0'}% / L0+L1</em>
-            </div>
-            <div className="hero-action-card">
-              <span>L0+L1 一致性对齐 API</span>
-              <b>{l01Aligned.length.toLocaleString()}</b>
-              <em>{l01.length ? (l01Aligned.length / l01.length * 100).toFixed(1) : '0.0'}% / L0+L1</em>
+            <div className="hero-gauge-legend-row">
+              <span><span className="sw" style={{ background: 'var(--s-aligned)' }} />30d</span>
+              <b style={{ color: change30d >= 0 ? 'var(--s-aligned)' : 'var(--s-fixing)' }}>{change30d >= 0 ? '+' : ''}{change30d.toFixed(1)}pp</b>
             </div>
           </div>
         </div>
@@ -75,6 +72,28 @@ export default function HeroSection({ filtered = [] }) {
             <span><span className="sw" style={{ background: colors.npu }} />加权 {(wv.rate * 100).toFixed(1)}%</span>
             <span><span className="sw" style={{ background: colors.fg3, border: '1px dashed ' + colors.fg3 }} />平均 {(ov.rate * 100).toFixed(1)}%</span>
             <span><span className="sw" style={{ background: colors.aligned }} />30d {change30d >= 0 ? '+' : ''}{change30d.toFixed(1)}pp</span>
+          </div>
+        </div>
+        <div className="hero-action-grid">
+          <div className="hero-action-card">
+            <span>所有 API 总数</span>
+            <b>{APIS.length.toLocaleString()}</b>
+            <em>全量</em>
+          </div>
+          <div className="hero-action-card">
+            <span>L0+L1 API 总数</span>
+            <b>{l01.length.toLocaleString()}</b>
+            <em>{APIS.length ? (l01.length / APIS.length * 100).toFixed(1) : '0.0'}% / 全量</em>
+          </div>
+          <div className="hero-action-card">
+            <span>L0+L1 已覆盖 API</span>
+            <b>{l01Covered.length.toLocaleString()}</b>
+            <em>{l01.length ? (l01Covered.length / l01.length * 100).toFixed(1) : '0.0'}% / L0+L1</em>
+          </div>
+          <div className="hero-action-card">
+            <span>L0+L1 一致性对齐 API</span>
+            <b>{l01Aligned.length.toLocaleString()}</b>
+            <em>{l01.length ? (l01Aligned.length / l01.length * 100).toFixed(1) : '0.0'}% / L0+L1</em>
           </div>
         </div>
       </div>
