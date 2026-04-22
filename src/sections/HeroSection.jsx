@@ -16,8 +16,6 @@ function buildStats(list) {
   return stats;
 }
 
-
-
 export default function HeroSection({ filtered = [] }) {
   const ov = useMemo(() => overallAlignment(filtered), [filtered]);
   const wv = useMemo(() => weightedAlignment(filtered), [filtered]);
@@ -33,8 +31,6 @@ export default function HeroSection({ filtered = [] }) {
 
   const l01Covered = l01.filter(a => DIMENSIONS.every(d => a.dims[d.key] !== 'untested'));
   const l01Aligned = l01.filter(a => DIMENSIONS.every(d => a.dims[d.key] === 'aligned' || a.dims[d.key] === 'reviewed'));
-
-
 
   return (
     <section className="hero-solo">
@@ -69,7 +65,6 @@ export default function HeroSection({ filtered = [] }) {
             <HeroGauge stats={l01Stats} label="L0+L1" />
             <HeroGauge stats={allStats} label="全量" />
           </div>
-
         </div>
         <div className="hero-action-grid">
           <div className="hero-action-card">

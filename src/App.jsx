@@ -1,14 +1,15 @@
-import { useState, useMemo, useEffect } from 'react';
-import { APIS, DIMENSIONS } from './data';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { APIS as APIS_DEFAULT, DIMENSIONS } from './data';
 import { HeroSection, DimSection, MatrixSection, TrendSection, RepoSection } from './sections';
 import Topbar from './components/Topbar';
 import FocusCard from './components/FocusCard';
 import TweaksPanel from './components/TweaksPanel';
+import ImportPanel from './components/ImportPanel';
 
 const TWEAKS_DEFAULTS = { matrixDensity: 'dense', showCudaBaseline: true };
 const ALL_LEVELS = ['L0', 'L1', 'L2'];
 
-function ScopeBar({ search, setSearch, filtered }) {
+function ScopeBar({ search, setSearch, filtered, customApis, onResetData }) {
   const total = filtered.length;
   const ready = filtered.filter(api => DIMENSIONS.every(d => {
     const status = api.dims[d.key];
@@ -47,6 +48,12 @@ function ScopeBar({ search, setSearch, filtered }) {
         )}
       </div>
       <div className="scope-metrics">
+        {customApis && (
+          <button className="scope-query" type="button" onClick={onResetData} title="恢复默认数据" style={{ background: 'var(--s-npu-dim, var(--accent-soft))', borderColor: 'var(--npu, var(--accent))' }}>
+            <span>已导入自定义数据</span>
+            <b>×</b>
+          </button>
+        )}
         <span><b>{total.toLocaleString()}</b> APIs</span>
         <span><b>{ready.toLocaleString()}</b> release-ready</span>
         <span className={blockingDims ? 'bad' : 'good'}><b>{blockingDims.toLocaleString()}</b> blocking dims</span>
@@ -61,8 +68,12 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [focus, setFocus] = useState(null);
   const [tweaksOn, setTweaksOn] = useState(false);
+  const [importOn, setImportOn] = useState(false);
   const [tweaks, setTweaks] = useState(TWEAKS_DEFAULTS);
   const [levels, setLevels] = useState(() => new Set(ALL_LEVELS));
+  const [customApis, setCustomApis] = useState(null);
+
+  const APIS = customApis || APIS_DEFAULT;
 
   const toggleLevel = (lv) => {
     setLevels(prev => {
@@ -105,6 +116,14 @@ export default function App() {
     window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*');
   };
 
+  const handleImport = useCallback((apis) => {
+    setCustomApis(apis);
+  }, []);
+
+  const handleResetData = useCallback(() => {
+    setCustomApis(null);
+  }, []);
+
   const searchFiltered = useMemo(() => {
     if (!search.trim()) return APIS;
     const q = search.toLowerCase();
@@ -136,8 +155,8 @@ export default function App() {
 
   return (
     <>
-      <Topbar search={search} setSearch={setSearch} matched={filtered.length} total={APIS.length} />
-      <ScopeBar search={search} setSearch={setSearch} filtered={filtered} />
+      <Topbar search={search} setSearch={setSearch} matched={filtered.length} total={APIS.length} onImportClick={() => setImportOn(true)} />
+      <ScopeBar search={search} setSearch={setSearch} filtered={filtered} customApis={customApis} onResetData={handleResetData} />
       <HeroSection filtered={searchFiltered} />
       <DimSection filtered={filtered} levelFilter={levelFilterProps} />
       <RepoSection onFocus={setFocus} levelFilter={levelFilterProps} />
@@ -145,6 +164,7 @@ export default function App() {
       <MatrixSection filtered={filtered} onFocus={setFocus} levelFilter={levelFilterProps} />
       <FocusCard focus={focus} onClose={() => setFocus(null)} />
       <TweaksPanel tweaksOn={tweaksOn} tweaks={tweaks} setTweak={setTweak} />
+      <ImportPanel open={importOn} onClose={() => setImportOn(false)} onImport={handleImport} />
     </>
   );
 }

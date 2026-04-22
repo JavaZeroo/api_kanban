@@ -1,20 +1,37 @@
+import { Drawer, Form, Switch, Select } from 'antd';
+
 export default function TweaksPanel({ tweaksOn, tweaks, setTweak }) {
   return (
-    <div className={`tweaks ${tweaksOn ? 'on' : ''}`}>
-      <h4>Tweaks</h4>
-      <div className="row">
-        <span>矩阵密度</span>
-        <select value={tweaks.matrixDensity} onChange={e => setTweak('matrixDensity', e.target.value)}>
-          <option value="dense">极密</option>
-          <option value="normal">普通</option>
-        </select>
-      </div>
-      <div className="row">
-        <label className="chk">
-          <input type="checkbox" checked={tweaks.showCudaBaseline} onChange={e => setTweak('showCudaBaseline', e.target.checked)} />
-          CUDA 基准线
-        </label>
-      </div>
-    </div>
+    <Drawer
+      title="Tweaks"
+      placement="right"
+      open={tweaksOn}
+      onClose={() => {}}
+      mask={false}
+      width={260}
+      styles={{ body: { padding: 16 } }}
+      style={{ top: 56 }}
+      closable={false}
+    >
+      <Form layout="vertical" size="small">
+        <Form.Item label="矩阵密度">
+          <Select
+            value={tweaks.matrixDensity}
+            onChange={(v) => setTweak('matrixDensity', v)}
+            options={[
+              { value: 'dense', label: '极密' },
+              { value: 'normal', label: '普通' },
+            ]}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Switch
+            checked={tweaks.showCudaBaseline}
+            onChange={(v) => setTweak('showCudaBaseline', v)}
+          />{' '}
+          <span style={{ marginLeft: 8 }}>CUDA 基准线</span>
+        </Form.Item>
+      </Form>
+    </Drawer>
   );
 }

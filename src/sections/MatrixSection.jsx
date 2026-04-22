@@ -58,5 +58,3 @@ export default function MatrixSection({ filtered, onFocus, levelFilter }) {
     </>
   );
 }
-
-
