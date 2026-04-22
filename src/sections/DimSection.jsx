@@ -24,7 +24,7 @@ export default function DimSection({ filtered, levelFilter }) {
       <section className="dim-grid">
         {dimAgg.map(({ d, t, tot, rate, rawRate }, di) => {
           const dimColor = DIM_COLORS[di];
-          const trend = TREND_30D.map((x, i) => x.rate + (di - 1.5) * 0.04 + Math.sin(i * 0.3 + di) * 0.02);
+          const trend = TREND_30D.map(x => x[d.key]);
           return (
             <div className="dim-card" key={d.key}>
               <div className="dim-card-head">
