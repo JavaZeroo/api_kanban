@@ -12,8 +12,8 @@ export default function HeroGauge({ stats, label }) {
   };
 
   const segments = [
-    { key: 'aligned',  name: '对齐', val: aligned,  color: 'var(--s-aligned)'  },
-    { key: 'fixing',   name: '待修', val: fixing,   color: 'var(--s-fixing)'   },
+    { key: 'aligned',  name: '对齐', val: aligned,  color: 'var(--s-aligned)' },
+    { key: 'fixing',   name: '待修', val: fixing,   color: 'var(--s-fixing)' },
     { key: 'untested', name: '未测', val: untested, color: 'var(--s-untested)' },
   ];
 

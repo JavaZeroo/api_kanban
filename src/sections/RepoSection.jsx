@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { Card, Row, Col, Table, Tag } from 'antd';
 import { REPOS, STATUS_META } from '../data';
 import { RepoBubbles } from '../charts';
 import LevelFilter from '../components/LevelFilter';
@@ -20,6 +22,23 @@ export default function RepoSection({ onFocus, levelFilter }) {
   const totalAligned = REPOS.reduce((s, r) => s + r.apiAligned, 0);
   const totalMissing = REPOS.reduce((s, r) => s + r.missing, 0);
 
+  const columns = [
+    { title: 'API', dataIndex: 'api', key: 'api', render: v => <span className="mono" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 220, display: 'inline-block' }}>{v}</span> },
+    { title: '项目', dataIndex: 'n', key: 'n', align: 'right', className: 'num' },
+    { title: '频次', dataIndex: 'freq', key: 'freq', align: 'right', className: 'num' },
+    {
+      title: '状态',
+      dataIndex: 's',
+      key: 's',
+      render: s => (
+        <span>
+          <span style={{ color: `var(--s-${s})`, fontSize: 10.5 }}>●</span>{' '}
+          <span style={{ fontSize: 10.5 }}>{STATUS_META[s].short}</span>
+        </span>
+      ),
+    },
+  ];
+
   return (
     <>
       <div className="sec-head">
@@ -30,38 +49,39 @@ export default function RepoSection({ onFocus, levelFilter }) {
         </div>
         <span className="right mono">10 项目 · 均值 {(avgRepoRate * 100).toFixed(0)}% · {fullyGreenRepos} 项 ≥95%</span>
       </div>
-      <section style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', background: 'var(--panel)' }}>
-        <div className="block" style={{ borderRight: '1px solid var(--line)', borderBottom: 0 }}>
-          <RepoBubbles repos={REPOS} onFocus={onFocus} />
-          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed var(--line)', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, fontFamily: 'var(--font-mono)' }}>
-            <div><div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)' }}>加权项目总API</div><div style={{ fontSize: 15, marginTop: 2 }}>{totalUsed.toLocaleString()}</div></div>
-            <div><div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)' }}>可跑</div><div style={{ fontSize: 15, marginTop: 2, color: 'var(--s-aligned)' }}>{totalAligned.toLocaleString()}</div></div>
-            <div><div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)' }}>阻塞</div><div style={{ fontSize: 15, marginTop: 2, color: 'var(--s-fixing)' }}>{totalMissing.toLocaleString()}</div></div>
-            <div><div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)' }}>全绿发版可能性</div><div style={{ fontSize: 15, marginTop: 2 }}>{(fullyGreenRepos / REPOS.length * 100).toFixed(0)}%</div></div>
-          </div>
-        </div>
-        <div className="block" style={{ borderBottom: 0 }}>
-          <div className="block-header">
-            <div className="block-title">阻塞 API top <b>热点</b></div>
-            <div className="block-meta">跨项目出现次数</div>
-          </div>
-          <table className="htab">
-            <thead>
-              <tr><th>API</th><th className="num">项目</th><th className="num">频次</th><th>状态</th></tr>
-            </thead>
-            <tbody>
-              {BLOCKING_APIS.map((h, i) => (
-                <tr key={i}>
-                  <td className="api">{h.api}</td>
-                  <td className="num">{h.n}</td>
-                  <td className="num">{h.freq}</td>
-                  <td><span style={{ color: `var(--s-${h.s})`, fontSize: 10.5 }}>●</span> <span style={{ fontSize: 10.5 }}>{STATUS_META[h.s].short}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <Row style={{ background: 'var(--panel)' }}>
+        <Col span={16}>
+          <Card className="block" bordered={false} style={{ borderRight: '1px solid var(--line)', height: '100%' }} bodyStyle={{ padding: '14px 16px', height: '100%' }}>
+            <RepoBubbles repos={REPOS} onFocus={onFocus} />
+            <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed var(--line)', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, fontFamily: 'var(--font-mono)' }}>
+              <div><div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)' }}>加权项目总API</div><div style={{ fontSize: 15, marginTop: 2 }}>{totalUsed.toLocaleString()}</div></div>
+              <div><div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)' }}>可跑</div><div style={{ fontSize: 15, marginTop: 2, color: 'var(--s-aligned)' }}>{totalAligned.toLocaleString()}</div></div>
+              <div><div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)' }}>阻塞</div><div style={{ fontSize: 15, marginTop: 2, color: 'var(--s-fixing)' }}>{totalMissing.toLocaleString()}</div></div>
+              <div><div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)' }}>全绿发版可能性</div><div style={{ fontSize: 15, marginTop: 2 }}>{(fullyGreenRepos / REPOS.length * 100).toFixed(0)}%</div></div>
+            </div>
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card className="block" bordered={false} style={{ height: '100%' }} bodyStyle={{ padding: '14px 16px', height: '100%' }}>
+            <div className="block-header">
+              <div className="block-title">阻塞 API top <b>热点</b></div>
+              <div className="block-meta">跨项目出现次数</div>
+            </div>
+            <Table
+              columns={columns}
+              dataSource={BLOCKING_APIS.map((h, i) => ({ ...h, key: i }))}
+              pagination={false}
+              size="small"
+              className="htab"
+              style={{ fontFamily: 'var(--font-mono)' }}
+              onRow={record => ({
+                onClick: () => navigate(`/api/${encodeURIComponent(record.api)}`),
+                style: { cursor: 'pointer' },
+              })}
+            />
+          </Card>
+        </Col>
+      </Row>
     </>
   );
 }

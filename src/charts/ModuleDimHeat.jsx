@@ -1,6 +1,12 @@
+import EChart, { colors } from '../components/EChart';
 import { MODULES } from '../data';
 
-const color = r => r > 0.85 ? 'var(--s-aligned)' : r > 0.65 ? 'var(--s-reviewed)' : r > 0.4 ? 'oklch(0.68 0.16 55)' : 'var(--s-fixing)';
+const getColor = r => {
+  if (r > 0.85) return colors.aligned;
+  if (r > 0.65) return colors.reviewed;
+  if (r > 0.4) return '#c9a03a';
+  return colors.fixing;
+};
 
 export default function ModuleDimHeat({ dimKey, apis }) {
   const rows = MODULES.map(m => {
@@ -8,16 +14,34 @@ export default function ModuleDimHeat({ dimKey, apis }) {
     const aligned = sub.filter(a => a.dims[dimKey] === 'aligned' || a.dims[dimKey] === 'reviewed').length;
     return { mod: m, rate: sub.length ? aligned / sub.length : 0 };
   });
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2, fontFamily: 'var(--font-mono)', fontSize: 9 }}>
-      {rows.map(r => (
-        <div key={r.mod.key} style={{ display: 'grid', gridTemplateColumns: '1fr 24px', gap: 4, alignItems: 'center' }}>
-          <div style={{ height: 8, background: 'var(--bg-1)', border: '1px solid var(--line-soft)', position: 'relative' }}>
-            <div style={{ position: 'absolute', inset: 0, width: `${r.rate * 100}%`, background: color(r.rate) }} />
-          </div>
-          <div style={{ color: 'var(--fg-3)', fontSize: 9, textAlign: 'right' }}>{(r.rate * 100).toFixed(0)}</div>
-        </div>
-      ))}
-    </div>
-  );
+
+  const option = {
+    grid: { top: 4, bottom: 4, left: 4, right: 32 },
+    xAxis: { type: 'value', show: false, max: 1 },
+    yAxis: {
+      type: 'category',
+      data: rows.map(r => r.mod.name),
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { show: false },
+    },
+    series: [{
+      type: 'bar',
+      data: rows.map(r => ({
+        value: r.rate,
+        itemStyle: { color: getColor(r.rate), borderRadius: 1 },
+      })),
+      barWidth: 8,
+      label: {
+        show: true,
+        position: 'right',
+        formatter: p => (p.value * 100).toFixed(0),
+        fontSize: 9,
+        color: colors.fg3,
+        fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
+      },
+    }],
+  };
+
+  return <EChart option={option} style={{ height: MODULES.length * 14 }} />;
 }

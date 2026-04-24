@@ -1,0 +1,102 @@
+[
+  {
+    "分类": "框架",
+    "PT2.7全量API": "__getstate__",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "__setstate__",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "align_as",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "align_to",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "flatten",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Function.backward",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Function.forward",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Function.jvp",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Function.vmap",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "FunctionCtx.mark_dirty",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "FunctionCtx.mark_non_differentiable",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "FunctionCtx.save_for_backward",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "FunctionCtx.set_materialize_grads",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "names",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Node.metadata",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Node.name",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Node.next_functions",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Node.register_hook",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Node.register_prehook",
+    "Level": "L2"
+  },
+  {
+    "分类": "框架",
+    "PT2.7全量API": "Optimizer.add_param_group",
+    "Level": "L2"
+  }
+]

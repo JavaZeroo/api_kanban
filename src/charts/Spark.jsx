@@ -1,43 +1,33 @@
-import { useMemo } from 'react';
+import EChart, { colors } from '../components/EChart';
 
-export default function Spark({ data, color = 'var(--fg)', height = 20, showArea, refLine }) {
-  const w = 160, h = height, pad = 2;
-  const max = Math.max(...data), min = Math.min(...data);
-  const span = max - min || 1;
-  const pts = data.map((v, i) => [
-    pad + (i / (data.length - 1)) * (w - pad * 2),
-    pad + (1 - (v - min) / span) * (h - pad * 2),
-  ]);
-  const lineD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0].toFixed(2)} ${p[1].toFixed(2)}`).join(' ');
+export default function Spark({ data, color = colors.fg, height = 20, showArea, refLine }) {
+  const option = {
+    grid: { top: 0, bottom: 0, left: 0, right: 0 },
+    xAxis: { type: 'category', show: false, boundaryGap: false, data: data.map((_, i) => i) },
+    yAxis: { type: 'value', show: false, min: Math.min(...data) * 0.98, max: Math.max(...data) * 1.02 },
+    series: [{
+      type: 'line',
+      data,
+      showSymbol: false,
+      smooth: false,
+      lineStyle: { width: 1.5, color },
+      areaStyle: showArea ? {
+        color: {
+          type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: color + '40' },
+            { offset: 1, color: color + '05' },
+          ],
+        },
+      } : undefined,
+      markLine: refLine !== undefined ? {
+        silent: true,
+        symbol: 'none',
+        lineStyle: { color: colors.line, type: 'dashed', width: 1 },
+        data: [{ yAxis: refLine }],
+      } : undefined,
+    }],
+  };
 
-  const areaD = useMemo(() => {
-    if (!showArea) return null;
-    const base = h - pad;
-    return `${lineD} L ${pts[pts.length - 1][0].toFixed(2)} ${base} L ${pts[0][0].toFixed(2)} ${base} Z`;
-  }, [showArea, lineD, pts, h, pad]);
-
-  const gradId = useMemo(() => `sg-${Math.random().toString(36).slice(2, 8)}`, []);
-
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ width: '100%', height: h, display: 'block' }}>
-      {showArea && (
-        <defs>
-          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.25" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.02" />
-          </linearGradient>
-        </defs>
-      )}
-      {refLine !== undefined && (
-        <line x1={0} x2={w}
-          y1={pad + (1 - (refLine - min) / span) * (h - pad * 2)}
-          y2={pad + (1 - (refLine - min) / span) * (h - pad * 2)}
-          stroke="var(--line)" strokeDasharray="1.5 1.5" />
-      )}
-      {showArea && areaD && <path d={areaD} fill={`url(#${gradId})`} />}
-      <path d={lineD} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="2.5" fill={color} />
-      <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="4.5" fill={color} opacity="0.2" />
-    </svg>
-  );
+  return <EChart option={option} style={{ height }} />;
 }

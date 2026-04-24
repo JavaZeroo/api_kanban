@@ -1,76 +1,39 @@
 import { mulberry32 } from './utils';
 import { DIMENSIONS, DTYPES } from './constants';
 import { APIS } from './apis';
-import { overallAlignment, dimRate, apiConsistencyRate, weightedAlignment } from './metrics';
-
-const clamp = (value, min = 0, max = 1) => Math.max(min, Math.min(max, value));
-const randomBetween = (min, max) => min + Math.random() * (max - min);
-const CONSISTENCY_GAP = 0.01;
-const DIM_TREND_GAIN = {
-  func: [0.13, 0.18],
-  prec: [0.11, 0.16],
-  mem: [0.09, 0.13],
-  det: [0.07, 0.11],
-};
-
-function randomRisingValues(length, start, end) {
-  if (length <= 1) return [end];
-  const from = Math.min(start, end);
-  const to = Math.max(start, end);
-  const steps = Array.from({ length: length - 1 }, (_, i) => {
-    const t = i / Math.max(1, length - 2);
-    const middleBoost = 0.85 + Math.sin(t * Math.PI) * 0.25;
-    return randomBetween(0.75, 1.35) * middleBoost;
-  });
-  const total = steps.reduce((sum, step) => sum + step, 0);
-  let acc = 0;
-
-  return [
-    from,
-    ...steps.map(step => {
-      acc += step;
-      return from + (to - from) * (acc / total);
-    }),
-  ];
-}
-
-function historyEndingAt(endRate, minGain, maxGain) {
-  const end = clamp(endRate, 0, 0.98);
-  const headroom = Math.max(0, end - 0.02);
-  const min = Math.min(minGain, headroom);
-  const max = Math.min(maxGain, headroom);
-  const gain = max > min ? randomBetween(min, max) : min;
-  return randomRisingValues(30, end - gain, end).map(v => clamp(v));
-}
+import { overallAlignment, dimRate, apiConsistencyRate } from './metrics';
 
 export const TREND_30D = (() => {
   const arr = [];
   const endRate = overallAlignment(APIS).rate;
-  const weightedEndRate = weightedAlignment(APIS).rate;
-  const rateTrend = historyEndingAt(endRate, 0.10, 0.16);
-  const weightedTrend = historyEndingAt(weightedEndRate, 0.12, 0.18);
-  const dimTrends = Object.fromEntries(
-    DIMENSIONS.map(d => {
-      const [minGain, maxGain] = DIM_TREND_GAIN[d.key] ?? [0.09, 0.15];
-      return [d.key, historyEndingAt(dimRate(APIS, d.key), minGain, maxGain)];
-    })
-  );
-  const consistencyTrend = historyEndingAt(apiConsistencyRate(APIS), 0.03, 0.06);
-  const newlyAlignedTrend = randomRisingValues(30, randomBetween(4, 7), randomBetween(13, 20));
-
+  const startRate = Math.max(0.1, endRate - 0.08);
+  const dimEndRates = {};
+  const dimStartRates = {};
+  DIMENSIONS.forEach(d => {
+    dimEndRates[d.key] = dimRate(APIS, d.key);
+    dimStartRates[d.key] = Math.max(0.1, dimEndRates[d.key] - 0.08);
+  });
+  const endConsistency = apiConsistencyRate(APIS);
+  const startConsistency = Math.max(0.05, endConsistency - 0.10);
   for (let i = 0; i < 30; i++) {
+    const t = i / 29;
+    const base = startRate + (endRate - startRate) * (t * t * (3 - 2 * t));
+    const noise = (mulberry32(100 + i)() - 0.5) * 0.006;
     const entry = {
       day: i,
-      rate: rateTrend[i],
-      weighted: weightedTrend[i],
-      newlyAligned: Math.round(newlyAlignedTrend[i]),
-      newlyFailed: Math.floor(randomBetween(0, 3)),
+      rate:     Math.max(0, Math.min(1, base + noise)),
+      weighted: Math.max(0, Math.min(1, base + 0.07 + noise)),
+      newlyAligned: Math.floor(3 + mulberry32(200 + i)() * 14),
+      newlyFailed:  Math.floor(mulberry32(300 + i)() * 4),
     };
     DIMENSIONS.forEach(d => {
-      entry[d.key] = dimTrends[d.key][i];
+      const dimBase = dimStartRates[d.key] + (dimEndRates[d.key] - dimStartRates[d.key]) * (t * t * (3 - 2 * t));
+      const dimNoise = (mulberry32(d.key.charCodeAt(0) * 100 + i)() - 0.5) * 0.006;
+      entry[d.key] = Math.max(0, Math.min(1, dimBase + dimNoise));
     });
-    const lowestDimension = Math.min(...DIMENSIONS.map(d => entry[d.key]));
-    entry.apiConsistency = clamp(Math.min(consistencyTrend[i], lowestDimension - CONSISTENCY_GAP));
+    const conBase = startConsistency + (endConsistency - startConsistency) * (t * t * (3 - 2 * t));
+    const conNoise = (mulberry32(999 + i)() - 0.5) * 0.005;
+    entry.apiConsistency = Math.max(0, Math.min(1, conBase + conNoise));
     arr.push(entry);
   }
   return arr;
@@ -123,12 +86,9 @@ export const L0_CRITICAL = APIS.filter(a => a.level === 'L0').slice(0, 14).map(a
   bias: a.name === 'torch.matmul' || a.name === 'Tensor.to' ? 'aligned' : null,
 }));
 
-const weeklyAligned = randomRisingValues(12, randomBetween(8, 12), randomBetween(26, 34));
-const weeklyReviewed = randomRisingValues(12, randomBetween(3, 5), randomBetween(10, 14));
-
 export const VELOCITY = Array.from({ length: 12 }, (_, i) => ({
-  week: i,
-  aligned: Math.round(weeklyAligned[i]),
-  fixing: -Math.floor(randomBetween(1, 4)),
-  reviewed: Math.round(weeklyReviewed[i]),
+  week:     i,
+  aligned:  Math.floor(8 + mulberry32(i + 500)() * 18 + i * 0.8),
+  fixing:  -Math.floor(2 + mulberry32(i + 600)() * 5),
+  reviewed: Math.floor(3 + mulberry32(i + 700)() * 6),
 }));
