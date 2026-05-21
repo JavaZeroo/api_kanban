@@ -1,6 +1,6 @@
 export const STATUS_META = {
   aligned:     { label: '完全对齐',    short: '对齐', hint: 'Fully aligned' },
-  reviewed:    { label: '旧标准对齐',  short: '旧标', hint: 'Legacy aligned' },
+  reviewed:    { label: '旧标准对齐',  short: '已评审', hint: 'Legacy aligned' },
   fixing:      { label: '差异·待修复', short: '待修', hint: 'Fixing' },
   unsupported: { label: '不支持',      short: '不支', hint: 'Unsupported' },
   untested:    { label: '未测试',      short: '未测', hint: 'Untested' },

@@ -118,6 +118,13 @@ for (const row of allApiRows) {
       det: parseDimStatus(testData.det),
     };
 
+    const rawDims = {
+      func: testData.func || '',
+      prec: testData.prec || '',
+      mem: testData.mem || '',
+      det: testData.det || '',
+    };
+
     const dtsCodes = [testData.func, testData.prec, testData.mem, testData.det]
       .filter(v => v && v.startsWith('DTS'));
 
@@ -131,6 +138,7 @@ for (const row of allApiRows) {
       module,
       level,
       dims,
+      rawDims,
       tags,
       caseTotal,
       casePass,
@@ -148,6 +156,7 @@ for (const row of allApiRows) {
       module,
       level,
       dims,
+      rawDims: { func: '', prec: '', mem: '', det: '' },
       tags,
       caseTotal: 0,
       casePass: 0,

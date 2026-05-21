@@ -117,6 +117,88 @@
   border-color: var(--npu);
 }
 
+/* ── CANN version popover in topbar ── */
+.cann-popover { position: relative; display: inline-flex; }
+.cann-trigger {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.cann-trigger:hover, .cann-trigger.open {
+  border-color: var(--npu);
+  background: var(--panel-hi);
+}
+.cann-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--npu);
+  box-shadow: 0 0 0 2px oklch(0.68 0.17 45 / 0.25);
+}
+.cann-arrow {
+  width: 0; height: 0;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-top: 4px solid var(--fg-3);
+  transition: transform 0.2s ease;
+}
+.cann-trigger.open .cann-arrow { transform: rotate(180deg); border-top-color: var(--fg); }
+.cann-menu {
+  min-width: 200px;
+  background: var(--panel);
+  border: 1px solid var(--line-hard);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px oklch(0.2 0.01 260 / 0.25), 0 0 0 1px oklch(0.2 0.01 260 / 0.06);
+  z-index: 9999;
+  overflow: hidden;
+  animation: cannMenuIn 0.18s ease both;
+}
+@keyframes cannMenuIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cann-menu-hd {
+  padding: 8px 12px;
+  font-size: 9.5px; font-weight: 500;
+  color: var(--fg-3);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-1);
+}
+.cann-menu button {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 9px 12px;
+  border: 0; background: transparent;
+  color: var(--fg); text-align: left;
+  font-family: var(--font-mono); font-size: 11px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.12s;
+}
+.cann-menu button:hover { background: var(--bg-1); }
+.cann-menu button.active { background: var(--panel-hi); }
+.cann-menu button .cann-line {
+  position: absolute; left: 0; top: 4px; bottom: 4px; width: 2.5px;
+  background: transparent; border-radius: 0 1px 1px 0;
+  transition: background 0.15s;
+}
+.cann-menu button.active .cann-line { background: var(--npu); }
+.cann-menu button .cann-info {
+  display: flex; flex-direction: column; gap: 1px;
+}
+.cann-menu button .cann-name { font-weight: 500; }
+.cann-menu button .cann-torch { font-size: 9.5px; color: var(--fg-3); }
+.cann-menu button .cann-check {
+  margin-left: auto;
+  font-size: 11px; color: var(--npu); font-weight: 600;
+}
+
 /* tag labels */
 .tag { padding: 1px 6px; border-radius: 2px; font-size: 10px; font-weight: 600; color: var(--bg); font-family: var(--font-mono); }
 .tag.cuda { background: var(--cuda); }

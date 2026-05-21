@@ -1,17 +1,88 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Tag, Button, Row, Col, Collapse } from 'antd';
-import { ArrowLeftOutlined, HomeOutlined, LinkOutlined } from '@ant-design/icons';
+import { Card, Tag, Button } from 'antd';
+import { ArrowLeftOutlined, HomeOutlined } from '@ant-design/icons';
 import { APIS, DIMENSIONS, STATUS_META, MODULES, API_REUSE_MAP } from '../data';
 import { colors } from '../components/EChart';
-import MiniRadial from '../charts/MiniRadial';
 
 const DIM_COLORS = [colors.npu, '#7a5ac8', '#3a9aaa', '#c85a8a'];
 
+function RawValueBadge({ val }) {
+  if (!val || val === '') {
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        padding: '2px 8px', borderRadius: 2,
+        fontSize: 10.5, fontWeight: 500, fontFamily: 'var(--font-mono)',
+        background: 'var(--line-soft)', color: 'var(--fg-3)',
+      }}>
+        <span style={{ fontSize: 8 }}>○</span> 未测试
+      </span>
+    );
+  }
+  if (val === '√') {
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        padding: '2px 8px', borderRadius: 2,
+        fontSize: 10.5, fontWeight: 500, fontFamily: 'var(--font-mono)',
+        background: 'var(--s-aligned-dim, rgba(61,153,102,0.1))', color: 'var(--s-aligned, #3d9966)',
+      }}>
+        <span style={{ fontSize: 8 }}>●</span> 对齐
+      </span>
+    );
+  }
+  if (val === '√-旧标准对齐') {
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        padding: '2px 8px', borderRadius: 2,
+        fontSize: 10.5, fontWeight: 500, fontFamily: 'var(--font-mono)',
+        background: 'var(--s-reviewed-dim, rgba(168,154,74,0.1))', color: 'var(--s-reviewed, #a89a4a)',
+      }}>
+        <span style={{ fontSize: 8 }}>◐</span> 旧标准对齐
+      </span>
+    );
+  }
+  if (val === 'x') {
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        padding: '2px 8px', borderRadius: 2,
+        fontSize: 10.5, fontWeight: 500, fontFamily: 'var(--font-mono)',
+        background: 'var(--s-fixing-dim, rgba(201,74,74,0.1))', color: 'var(--s-fixing, #c94a4a)',
+      }}>
+        <span style={{ fontSize: 8 }}>✕</span> 未对齐
+      </span>
+    );
+  }
+  if (String(val).startsWith('DTS')) {
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        padding: '2px 8px', borderRadius: 2,
+        fontSize: 10.5, fontWeight: 500, fontFamily: 'var(--font-mono)',
+        background: 'var(--s-fixing-dim, rgba(201,74,74,0.1))', color: 'var(--s-fixing, #c94a4a)',
+      }}>
+        <span style={{ fontSize: 8 }}>◎</span> {val}
+      </span>
+    );
+  }
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 4,
+      padding: '2px 8px', borderRadius: 2,
+      fontSize: 10.5, fontWeight: 500, fontFamily: 'var(--font-mono)',
+      background: 'var(--line-soft)', color: 'var(--fg-2)',
+    }}>
+      {val}
+    </span>
+  );
+}
+
 function DimCard({ dim, api, color }) {
   const s = api.dims[dim.key];
+  const raw = api.rawDims?.[dim.key] || '';
   const meta = STATUS_META[s];
-  const passRate = s === 'aligned' ? 100 : s === 'reviewed' ? 85 : s === 'fixing' ? 40 : s === 'unsupported' ? 0 : null;
-  const isPrecOrMem = dim.key === 'prec' || dim.key === 'mem';
 
   return (
     <Card
@@ -32,6 +103,28 @@ function DimCard({ dim, api, color }) {
           <div className="mono dim" style={{ fontSize: 10, marginTop: 2 }}>{dim.desc}</div>
         </div>
         <div style={{ textAlign: 'right' }}>
+          <RawValueBadge val={raw} />
+        </div>
+      </div>
+
+      {/* 原始值展示 */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 14, padding: '12px 0', borderTop: '1px dashed var(--line-soft)', borderBottom: '1px dashed var(--line-soft)',
+      }}>
+        <div>
+          <div className="mono dim" style={{ fontSize: 9.5, marginBottom: 4 }}>Excel 原始值</div>
+          <div className="mono" style={{
+            fontSize: raw.startsWith('DTS') ? 12 : 20, fontWeight: 500,
+            color: raw === '√' ? colors.aligned : raw === 'x' ? colors.fixing : raw.startsWith('DTS') ? colors.fixing : raw === '√-旧标准对齐' ? colors.reviewed : colors.fg3,
+            fontFamily: 'var(--font-mono)',
+            letterSpacing: '-0.02em',
+          }}>
+            {raw || '—'}
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div className="mono dim" style={{ fontSize: 9.5, marginBottom: 4 }}>映射状态</div>
           <span style={{
             display: 'inline-block', padding: '2px 8px', borderRadius: 2,
             fontSize: 10.5, fontWeight: 500, fontFamily: 'var(--font-mono)',
@@ -43,51 +136,8 @@ function DimCard({ dim, api, color }) {
         </div>
       </div>
 
-      {passRate !== null && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderTop: '1px dashed var(--line-soft)', borderBottom: '1px dashed var(--line-soft)' }}>
-          <MiniRadial rate={passRate / 100} size={56} color={color} />
-          <div>
-            <div className="mono" style={{ fontSize: 28, fontWeight: 500, color: colors.fg, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
-              {passRate}<span style={{ fontSize: 13, color: colors.fg3 }}>%</span>
-            </div>
-            <div className="mono dim" style={{ fontSize: 10, marginTop: 2 }}>
-              {meta.label}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isPrecOrMem && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12, paddingTop: 12, borderTop: '1px dashed var(--line-soft)' }}>
-          <div>
-            <div className="mono dim" style={{ fontSize: 9.5 }}>对齐标准</div>
-            <div className="mono" style={{ fontSize: 12, fontWeight: 500, color: colors.fg, marginTop: 3 }}>
-              {dim.key === 'prec' ? 'atol≤1e-5, rtol≤1e-4' : '峰值 ≤ 1.1× 参考'}
-            </div>
-          </div>
-          <div>
-            <div className="mono dim" style={{ fontSize: 9.5 }}>实际误差</div>
-            <div className="mono" style={{ fontSize: 12, fontWeight: 500, color: s === 'aligned' ? colors.aligned : s === 'fixing' ? colors.fixing : colors.fg3, marginTop: 3 }}>
-              {s === 'aligned' ? '在标准内' : s === 'fixing' ? '超出标准' : '—'}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {s === 'reviewed' && (
-        <div style={{
-          marginTop: 12, padding: '10px 12px', borderRadius: 2,
-          background: 'var(--s-reviewed-dim, rgba(168,154,74,0.08))',
-          border: '1px solid var(--line-soft)',
-        }}>
-          <div className="mono" style={{ fontSize: 10, fontWeight: 500, color: colors.fg, marginBottom: 4 }}>差异说明</div>
-          <div className="mono dim" style={{ fontSize: 10, lineHeight: 1.5 }}>
-            该 API 在 NPU 上存在已知差异，已通过评审确认可接受。{api.updatedBy ? `评审人: ${api.updatedBy}` : ''}{api.updatedAt ? ` · ${api.updatedAt}` : ''}
-          </div>
-        </div>
-      )}
-
-      {s === 'fixing' && (
+      {/* DTS 编号链接 */}
+      {raw.startsWith('DTS') && (
         <div style={{
           marginTop: 12, padding: '10px 12px', borderRadius: 2,
           background: 'var(--s-fixing-dim, rgba(201,74,74,0.08))',
@@ -95,7 +145,45 @@ function DimCard({ dim, api, color }) {
         }}>
           <div className="mono" style={{ fontSize: 10, fontWeight: 500, color: colors.fixing, marginBottom: 4 }}>待修复</div>
           <div className="mono dim" style={{ fontSize: 10, lineHeight: 1.5 }}>
-            该维度存在未对齐差异，正在修复中。{api.updatedBy ? `负责人: ${api.updatedBy}` : ''}
+            该维度存在未对齐差异，已创建 DTS 工单追踪。{api.updatedBy ? `负责人: ${api.updatedBy}` : ''}
+          </div>
+        </div>
+      )}
+
+      {raw === '√-旧标准对齐' && (
+        <div style={{
+          marginTop: 12, padding: '10px 12px', borderRadius: 2,
+          background: 'var(--s-reviewed-dim, rgba(168,154,74,0.08))',
+          border: '1px solid var(--line-soft)',
+        }}>
+          <div className="mono" style={{ fontSize: 10, fontWeight: 500, color: colors.fg, marginBottom: 4 }}>差异说明</div>
+          <div className="mono dim" style={{ fontSize: 10, lineHeight: 1.5 }}>
+            该 API 在 NPU 上按旧标准对齐，已通过评审确认可接受。{api.updatedBy ? `评审人: ${api.updatedBy}` : ''}{api.updatedAt ? ` · ${api.updatedAt}` : ''}
+          </div>
+        </div>
+      )}
+
+      {raw === 'x' && (
+        <div style={{
+          marginTop: 12, padding: '10px 12px', borderRadius: 2,
+          background: 'var(--s-fixing-dim, rgba(201,74,74,0.08))',
+          border: '1px solid var(--line-soft)',
+        }}>
+          <div className="mono" style={{ fontSize: 10, fontWeight: 500, color: colors.fixing, marginBottom: 4 }}>未对齐</div>
+          <div className="mono dim" style={{ fontSize: 10, lineHeight: 1.5 }}>
+            该维度测试未通过，存在功能/精度/性能差异。
+          </div>
+        </div>
+      )}
+
+      {raw === '' && (
+        <div style={{
+          marginTop: 12, padding: '10px 12px', borderRadius: 2,
+          background: 'var(--bg-1)',
+          border: '1px solid var(--line-soft)',
+        }}>
+          <div className="mono dim" style={{ fontSize: 10, lineHeight: 1.5 }}>
+            该维度尚未进行测试。
           </div>
         </div>
       )}
@@ -131,29 +219,6 @@ export default function ApiDetailPage() {
   const mod = MODULES.find(m => m.key === api.module);
   const alignedDims = DIMENSIONS.filter(d => api.dims[d.key] === 'aligned' || api.dims[d.key] === 'reviewed').length;
   const overallRate = alignedDims / DIMENSIONS.length;
-
-  const collapseItems = [{
-    key: 'cases',
-    label: <span className="mono" style={{ fontSize: 11 }}>测试用例 ({api.caseTotal})</span>,
-    children: (
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-        <div style={{ padding: '8px 10px', background: 'var(--bg-1)', borderRadius: 2 }}>
-          <div className="mono dim" style={{ fontSize: 9.5 }}>通过</div>
-          <div className="mono" style={{ fontSize: 18, fontWeight: 500, color: colors.aligned, marginTop: 2 }}>{api.casePass}</div>
-        </div>
-        <div style={{ padding: '8px 10px', background: 'var(--bg-1)', borderRadius: 2 }}>
-          <div className="mono dim" style={{ fontSize: 9.5 }}>失败</div>
-          <div className="mono" style={{ fontSize: 18, fontWeight: 500, color: colors.fixing, marginTop: 2 }}>{api.caseTotal - api.casePass}</div>
-        </div>
-        <div style={{ padding: '8px 10px', background: 'var(--bg-1)', borderRadius: 2 }}>
-          <div className="mono dim" style={{ fontSize: 9.5 }}>通过率</div>
-          <div className="mono" style={{ fontSize: 18, fontWeight: 500, color: colors.fg, marginTop: 2 }}>
-            {api.caseTotal > 0 ? (api.casePass / api.caseTotal * 100).toFixed(0) : '—'}<span style={{ fontSize: 10, color: colors.fg3 }}>{api.caseTotal > 0 ? '%' : ''}</span>
-          </div>
-        </div>
-      </div>
-    ),
-  }];
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
@@ -284,14 +349,6 @@ export default function ApiDetailPage() {
           ))}
         </div>
 
-        <Card variant="borderless" style={{ border: '1px solid var(--line-soft)' }} styles={{ body: { padding: '12px 16px' } }}>
-          <Collapse
-            items={collapseItems}
-            bordered={false}
-            ghost
-            style={{ fontFamily: 'var(--font-mono)' }}
-          />
-        </Card>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 const LEVELS = [
-  { key: 'L0', label: 'L0', hint: '关键' },
-  { key: 'L1', label: 'L1', hint: '重要' },
-  { key: 'L2', label: 'L2', hint: '一般' },
+  { key: 'L01', label: 'L0+L1', hint: '关键 + 重要' },
+  { key: 'L2',  label: 'L2',   hint: '一般' },
 ];
 
 export default function LevelFilter({ levels, onToggle, counts = {} }) {
@@ -16,7 +15,7 @@ export default function LevelFilter({ levels, onToggle, counts = {} }) {
             className={active ? 'active' : ''}
             aria-pressed={active}
             onClick={() => onToggle(lv.key)}
-            title={`${lv.label} · ${lv.hint}`}
+            title={lv.hint}
           >
             <span>{lv.label}</span>
             <b>{(counts[lv.key] || 0).toLocaleString()}</b>

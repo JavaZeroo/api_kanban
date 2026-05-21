@@ -1,13 +1,15 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
 import { APIS as APIS_DEFAULT, DIMENSIONS } from './data';
-import { HeroSection, DimSection, MatrixSection, TrendSection, RepoSection } from './sections';
+import { HeroSection, DimSection, TrendSection, RepoSection } from './sections';
+const MatrixSection = lazy(() => import('./sections/MatrixSection'));
 import Topbar from './components/Topbar';
 import FocusCard from './components/FocusCard';
 import TweaksPanel from './components/TweaksPanel';
 import ImportPanel from './components/ImportPanel';
 
-const TWEAKS_DEFAULTS = { matrixDensity: 'dense', showCudaBaseline: true };
-const ALL_LEVELS = ['L0', 'L1', 'L2'];
+const TWEAKS_DEFAULTS = { showCudaBaseline: true };
+const DEFAULT_LEVELS = ['L01'];
+const L01_SET = new Set(['L0', 'L1']);
 
 function ScopeBar({ search, setSearch, filtered, customApis, onResetData }) {
   const total = filtered.length;
@@ -55,7 +57,7 @@ function ScopeBar({ search, setSearch, filtered, customApis, onResetData }) {
           </button>
         )}
         <span><b>{total.toLocaleString()}</b> APIs</span>
-        <span><b>{ready.toLocaleString()}</b> release-ready</span>
+        <span><b>{ready.toLocaleString()}</b> 四维全齐</span>
         <span className={blockingDims ? 'bad' : 'good'}><b>{blockingDims.toLocaleString()}</b> blocking dims</span>
         <span><b>{untestedDims.toLocaleString()}</b> untested dims</span>
         <span><b>{topModule?.module || 'clear'}</b> top risk</span>
@@ -64,14 +66,21 @@ function ScopeBar({ search, setSearch, filtered, customApis, onResetData }) {
   );
 }
 
+const CANN_VERSIONS = [
+  { label: 'CANN 8.0.RC3', value: '8.0.RC3', torch: 'torch 2.5.1' },
+  { label: 'CANN 9.0.0', value: '9.0.0', torch: 'torch 2.7.0' },
+  { label: 'CANN 9.0.RC1', value: '9.0.RC1', torch: 'torch 2.7.0' },
+];
+
 export default function App() {
   const [search, setSearch] = useState('');
   const [focus, setFocus] = useState(null);
   const [tweaksOn, setTweaksOn] = useState(false);
   const [importOn, setImportOn] = useState(false);
   const [tweaks, setTweaks] = useState(TWEAKS_DEFAULTS);
-  const [levels, setLevels] = useState(() => new Set(ALL_LEVELS));
+  const [levels, setLevels] = useState(() => new Set(DEFAULT_LEVELS));
   const [customApis, setCustomApis] = useState(null);
+  const [cannVer, setCannVer] = useState(CANN_VERSIONS[1]);
 
   const APIS = customApis || APIS_DEFAULT;
 
@@ -141,13 +150,20 @@ export default function App() {
   }, [search]);
 
   const levelCounts = useMemo(() => {
-    const counts = { L0: 0, L1: 0, L2: 0 };
-    searchFiltered.forEach(a => { if (counts[a.level] != null) counts[a.level]++; });
+    const counts = { L01: 0, L2: 0 };
+    searchFiltered.forEach(a => {
+      if (a.level === 'L0' || a.level === 'L1') counts.L01++;
+      else if (a.level === 'L2') counts.L2++;
+    });
     return counts;
   }, [searchFiltered]);
 
   const filtered = useMemo(
-    () => searchFiltered.filter(a => levels.has(a.level)),
+    () => searchFiltered.filter(a => {
+      if (levels.has('L01') && L01_SET.has(a.level)) return true;
+      if (levels.has('L2') && a.level === 'L2') return true;
+      return false;
+    }),
     [searchFiltered, levels]
   );
 
@@ -155,13 +171,15 @@ export default function App() {
 
   return (
     <>
-      <Topbar search={search} setSearch={setSearch} matched={filtered.length} total={APIS.length} onImportClick={() => setImportOn(true)} />
+      <Topbar search={search} setSearch={setSearch} matched={filtered.length} total={APIS.length} onImportClick={() => setImportOn(true)} cannVer={cannVer} setCannVer={setCannVer} cannVersions={CANN_VERSIONS} />
       <ScopeBar search={search} setSearch={setSearch} filtered={filtered} customApis={customApis} onResetData={handleResetData} />
-      <HeroSection filtered={searchFiltered} />
+      <HeroSection filtered={searchFiltered} cannVer={cannVer} setCannVer={setCannVer} cannVersions={CANN_VERSIONS} />
       <DimSection filtered={filtered} levelFilter={levelFilterProps} />
-      <RepoSection onFocus={setFocus} levelFilter={levelFilterProps} />
+      <RepoSection onFocus={setFocus} levelFilter={levelFilterProps} filtered={filtered} />
       <TrendSection levelFilter={levelFilterProps} />
-      <MatrixSection filtered={filtered} onFocus={setFocus} levelFilter={levelFilterProps} />
+      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: 'var(--fg-3)', fontFamily: 'var(--font-mono)' }}>加载矩阵...</div>}>
+        <MatrixSection filtered={filtered} onFocus={setFocus} levelFilter={levelFilterProps} />
+      </Suspense>
       <FocusCard focus={focus} onClose={() => setFocus(null)} />
       <TweaksPanel tweaksOn={tweaksOn} tweaks={tweaks} setTweak={setTweak} />
       <ImportPanel open={importOn} onClose={() => setImportOn(false)} onImport={handleImport} />

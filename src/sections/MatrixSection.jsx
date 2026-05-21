@@ -45,7 +45,7 @@ export default function MatrixSection({ filtered, onFocus, levelFilter }) {
               <em>{matrixStats.blocked.length.toLocaleString()} 个 API 待修复</em>
             </div>
             <div className="matrix-stat good">
-              <span>发版可用</span>
+              <span>四维全齐</span>
               <b>{matrixStats.ready.length.toLocaleString()}</b>
               <em>{filtered.length ? (matrixStats.ready.length / filtered.length * 100).toFixed(1) : '0.0'}% / 当前范围</em>
             </div>

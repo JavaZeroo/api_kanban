@@ -29,7 +29,7 @@ export default function TrendSection({ levelFilter }) {
       <section className="trend-section-grid">
         <div className="block trend-card trend-card-main">
           <div className="block-header">
-            <div className="block-title">Dimension Alignment · <b>30d</b></div>
+            <div className="block-title">维度对齐趋势 · <b>30天</b></div>
             <div className="block-meta">
               <span style={{ color: DIM_COLORS.apiConsistency, fontWeight: 600 }}>━</span>{' '}
               <span style={{ color: DIM_COLORS.apiConsistency }}>API一致</span>
@@ -45,7 +45,7 @@ export default function TrendSection({ levelFilter }) {
 
         <div className="block trend-card trend-card-velocity">
           <div className="block-header">
-            <div className="block-title">Weekly net progress · <b>12w</b></div>
+            <div className="block-title">每周净进展 · <b>12周</b></div>
             <div className="block-meta">green=aligned orange=reviewed red=regressed</div>
           </div>
           <VelocityBars />

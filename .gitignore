@@ -44,3 +44,6 @@ CLAUDE.md
 # scripts & screenshots
 *.ps1
 r*-*.png
+
+# data
+docs/

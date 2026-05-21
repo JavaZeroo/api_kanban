@@ -38,7 +38,7 @@ export default function DimSection({ filtered, levelFilter }) {
                 <div style={{ flex: 1 }}>
                   <div className="dim-big">{(rate * 100).toFixed(1)}<span className="dim-unit">%</span></div>
                   <div className="dim-sub">
-                    <span>严格: {(rawRate * 100).toFixed(1)}%</span>
+                    <span>仅对齐: {(rawRate * 100).toFixed(1)}%</span>
                     <span className="dim" style={{ margin: '0 6px' }}>·</span>
                     <span style={{ color: trend[29] > trend[0] ? 'var(--s-aligned)' : 'var(--s-fixing)' }}>
                       {trend[29] > trend[0] ? '↑' : '↓'} {Math.abs((trend[29] - trend[0]) * 100).toFixed(1)}pp / 30d

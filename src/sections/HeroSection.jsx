@@ -16,7 +16,26 @@ function buildStats(list) {
   return stats;
 }
 
-export default function HeroSection({ filtered = [] }) {
+function CannSelector({ versions, active, onChange }) {
+  return (
+    <div className="cann-selector">
+      {versions.map(v => (
+        <button
+          key={v.value}
+          className={active?.value === v.value ? 'active' : ''}
+          onClick={() => onChange(v)}
+          type="button"
+          title={v.torch}
+        >
+          <span className="label">{v.label}</span>
+          <span className="sub">{v.torch}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function HeroSection({ filtered = [], cannVer, setCannVer, cannVersions }) {
   const ov = useMemo(() => overallAlignment(filtered), [filtered]);
   const wv = useMemo(() => weightedAlignment(filtered), [filtered]);
 
@@ -31,6 +50,8 @@ export default function HeroSection({ filtered = [] }) {
 
   const l01Covered = l01.filter(a => DIMENSIONS.every(d => a.dims[d.key] !== 'untested'));
   const l01Aligned = l01.filter(a => DIMENSIONS.every(d => a.dims[d.key] === 'aligned' || a.dims[d.key] === 'reviewed'));
+  const allCovered = filtered.filter(a => DIMENSIONS.every(d => a.dims[d.key] !== 'untested'));
+  const allAligned = filtered.filter(a => DIMENSIONS.every(d => a.dims[d.key] === 'aligned' || a.dims[d.key] === 'reviewed'));
 
   return (
     <section className="hero-solo">
@@ -38,7 +59,7 @@ export default function HeroSection({ filtered = [] }) {
         <div className="hero-main">
           <div className="hero-eyebrow">
             <span className="tag npu">torch_npu</span>
-            <span className="mono dim">昇腾 910B · CANN 9.0.0 · torch 2.7.0</span>
+            <span className="mono dim">昇腾 910B</span>
           </div>
           <h1 className="hero-h1">PyTorch on NPU · API 一致性总览</h1>
           <p className="hero-lede">
@@ -86,6 +107,21 @@ export default function HeroSection({ filtered = [] }) {
             <span>L0+L1 一致性对齐 API</span>
             <b>{l01Aligned.length.toLocaleString()}</b>
             <em>{l01.length ? (l01Aligned.length / l01.length * 100).toFixed(1) : '0.0'}% / L0+L1</em>
+          </div>
+          <div className="hero-action-card">
+            <span>全量 API 总数</span>
+            <b>{filtered.length.toLocaleString()}</b>
+            <em>全量</em>
+          </div>
+          <div className="hero-action-card">
+            <span>全量 已覆盖 API</span>
+            <b>{allCovered.length.toLocaleString()}</b>
+            <em>{filtered.length ? (allCovered.length / filtered.length * 100).toFixed(1) : '0.0'}% / 全量</em>
+          </div>
+          <div className="hero-action-card">
+            <span>全量 一致性对齐 API</span>
+            <b>{allAligned.length.toLocaleString()}</b>
+            <em>{filtered.length ? (allAligned.length / filtered.length * 100).toFixed(1) : '0.0'}% / 全量</em>
           </div>
         </div>
       </div>
